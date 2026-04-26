@@ -1,0 +1,1613 @@
+<!DOCTYPE html>
+<html><head>
+<meta charset="UTF-8">
+<title>Business World</title>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Exo+2:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{--gold:#f0a500;--cyan:#00c8ff;--green:#00e676;--red:#ff4b4b;--orange:#ff9800;--purple:#b44fff;--bg:#06091a;--bg2:#0c1226;--panel:#0f1a30;--panel2:#141f3a;--border:#1a2d54;--text:#dde8ff;--muted:#6a8ab0}
+body{font-family:'Exo 2',sans-serif;background:var(--bg);color:var(--text);overflow:hidden;height:100vh;width:100vw;user-select:none}
+.screen{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity .4s}
+.screen.active{opacity:1;pointer-events:all}
+/* BG */
+#bg-wrap{position:absolute;inset:0;overflow:hidden;z-index:0}
+.sky{position:absolute;inset:0;background:linear-gradient(180deg,#020612 0%,#081028 55%,#0e1a38 100%)}
+.star{position:absolute;background:#fff;border-radius:50%;animation:tw var(--d) ease-in-out infinite var(--del)}
+@keyframes tw{0%,100%{opacity:.1}50%{opacity:1}}
+.coin{position:absolute;animation:fu var(--d) ease-in-out infinite var(--del);opacity:0;font-size:16px}
+@keyframes fu{0%{opacity:0;transform:translateY(0) translateX(0)}20%{opacity:.9}80%{opacity:.3}100%{opacity:0;transform:translateY(-130px) translateX(var(--dx))}}
+.skysvg{position:absolute;bottom:0;left:0;right:0}
+/* AUTH */
+.auth-box{background:rgba(10,16,32,.95);border:1px solid var(--border);border-radius:22px;padding:36px 44px;width:420px;backdrop-filter:blur(20px);box-shadow:0 0 80px rgba(0,0,0,.6);position:relative;z-index:1}
+.auth-logo{font-family:'Orbitron',sans-serif;font-size:32px;font-weight:900;color:var(--gold);text-align:center;letter-spacing:4px;text-shadow:0 0 30px rgba(240,165,0,.5);margin-bottom:4px}
+.auth-sub{font-family:'Orbitron',sans-serif;font-size:9px;letter-spacing:6px;color:var(--cyan);text-align:center;margin-bottom:22px}
+.tabs{display:flex;border-radius:10px;overflow:hidden;border:1px solid var(--border);margin-bottom:18px}
+.tab{flex:1;padding:11px;text-align:center;cursor:pointer;font-size:13px;font-weight:700;transition:all .2s;background:rgba(255,255,255,.03)}
+.tab.on{background:rgba(240,165,0,.18);color:var(--gold)}
+.inp{width:100%;padding:12px 16px;background:rgba(255,255,255,.06);border:1px solid var(--border);border-radius:10px;color:var(--text);font-family:'Exo 2',sans-serif;font-size:14px;margin-bottom:11px;transition:border-color .2s}
+.inp:focus{outline:none;border-color:var(--gold)}
+.auth-btn{width:100%;padding:13px;border-radius:10px;border:none;background:linear-gradient(135deg,rgba(240,165,0,.85),rgba(240,165,0,.65));color:#080c1a;font-family:'Exo 2',sans-serif;font-size:15px;font-weight:800;cursor:pointer;transition:all .2s}
+.auth-btn:hover{background:var(--gold);transform:translateY(-1px)}
+.auth-btn:disabled{opacity:.5;cursor:not-allowed;transform:none}
+.av-row{display:flex;gap:8px;flex-wrap:wrap;justify-content:center;margin-bottom:12px}
+.av-btn{font-size:24px;width:44px;height:44px;border-radius:10px;border:2px solid var(--border);background:rgba(255,255,255,.04);cursor:pointer;transition:all .2s}
+.av-btn.on{border-color:var(--gold);background:rgba(240,165,0,.15);transform:scale(1.15)}
+.auth-err{color:var(--red);font-size:11px;text-align:center;margin-bottom:10px;min-height:16px}
+.auth-link{text-align:center;margin-top:12px;font-size:11px;color:var(--muted)}
+.auth-link span{color:var(--cyan);cursor:pointer}
+.auth-link span:hover{text-decoration:underline}
+.server-status{display:flex;align-items:center;gap:6px;justify-content:center;font-size:10px;color:var(--muted);margin-bottom:14px}
+.status-dot{width:7px;height:7px;border-radius:50%;background:var(--muted);flex-shrink:0}
+.status-dot.online{background:var(--green);box-shadow:0 0 6px var(--green)}
+.status-dot.offline{background:var(--red)}
+.lang-row{display:flex;justify-content:center;gap:8px;margin-top:14px}
+.lbtn{padding:5px 12px;border-radius:7px;border:1px solid var(--border);background:transparent;color:var(--muted);font-family:'Exo 2',sans-serif;font-size:10px;cursor:pointer;transition:all .2s}
+.lbtn:hover,.lbtn.on{border-color:var(--gold);color:var(--gold);background:rgba(240,165,0,.1)}
+/* MENU */
+.menu-wrap{position:relative;z-index:1;display:flex;flex-direction:column;align-items:center}
+.logo-big{font-family:'Orbitron',sans-serif;font-size:58px;font-weight:900;color:var(--gold);letter-spacing:7px;text-shadow:0 0 50px rgba(240,165,0,.5);line-height:1;text-align:center}
+.logo-tag{font-family:'Orbitron',sans-serif;font-size:11px;letter-spacing:8px;color:var(--cyan);margin:8px 0 3px;text-align:center}
+.logo-ver{font-size:9px;color:var(--purple);letter-spacing:3px;font-family:'Orbitron',sans-serif;margin-bottom:14px}
+.user-card{display:flex;align-items:center;gap:10px;background:rgba(255,255,255,.05);border:1px solid var(--border);border-radius:12px;padding:8px 16px;margin-bottom:10px;cursor:pointer;transition:all .2s;min-width:340px}
+.user-card:hover{border-color:var(--gold)}
+.online-badge{font-size:10px;color:var(--green);background:rgba(0,230,118,.1);border:1px solid rgba(0,230,118,.25);border-radius:20px;padding:2px 8px;margin-left:auto}
+.daily-card{background:linear-gradient(135deg,rgba(240,165,0,.18),rgba(255,152,0,.12));border:1px solid rgba(240,165,0,.4);border-radius:10px;padding:7px 16px;font-size:11px;font-weight:700;color:var(--gold);cursor:pointer;margin-bottom:10px;text-align:center;width:340px;animation:pulse 2.5s infinite}
+@keyframes pulse{0%,100%{box-shadow:0 0 0 0 rgba(240,165,0,.3)}50%{box-shadow:0 0 0 6px rgba(240,165,0,0)}}
+.menu-box{background:rgba(10,16,32,.92);border:1px solid var(--border);border-radius:20px;padding:20px 28px;width:340px;backdrop-filter:blur(16px)}
+.mbtn{display:flex;align-items:center;gap:12px;width:100%;padding:13px 16px;margin:3px 0;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.07);border-radius:11px;color:var(--text);font-family:'Exo 2',sans-serif;font-size:14px;font-weight:600;cursor:pointer;transition:all .2s;text-align:left}
+.mbtn:hover{background:rgba(240,165,0,.12);border-color:var(--gold);color:var(--gold);transform:translateX(4px)}
+.mbtn .ico{font-size:18px;width:24px;text-align:center}
+.mbtn.primary{background:rgba(240,165,0,.16);border-color:var(--gold);color:var(--gold);font-size:15px;font-weight:800;margin-bottom:8px}
+.mbtn.disabled-btn{opacity:.4;cursor:not-allowed}.mbtn.disabled-btn:hover{transform:none;background:rgba(255,255,255,.03);border-color:rgba(255,255,255,.07);color:var(--muted)}
+.menu-foot{text-align:center;font-size:10px;color:var(--muted);margin-top:10px}
+/* FLOW */
+.flow-wrap{position:relative;z-index:1}
+.flow-box{background:rgba(10,16,32,.94);border:1px solid var(--border);border-radius:20px;padding:30px 36px;width:600px;backdrop-filter:blur(16px)}
+.ftitle{font-family:'Orbitron',sans-serif;font-size:20px;font-weight:700;color:var(--gold);text-align:center;margin-bottom:5px;letter-spacing:2px}
+.fsub{text-align:center;color:var(--muted);font-size:11px;margin-bottom:22px}
+.fgrid{display:grid;gap:10px}.fgrid.g2{grid-template-columns:1fr 1fr}.fgrid.g3{grid-template-columns:1fr 1fr 1fr}.fgrid.g4{grid-template-columns:1fr 1fr 1fr 1fr}
+.fcard{background:rgba(255,255,255,.04);border:1.5px solid rgba(255,255,255,.08);border-radius:12px;padding:14px 10px;cursor:pointer;transition:all .22s;text-align:center}
+.fcard:hover{transform:translateY(-2px)}.fcard.sel{border-width:2px}
+.fcard .ci{font-size:28px;margin-bottom:6px}.fcard .cn{font-weight:800;font-size:12px;margin-bottom:3px}.fcard .cd{font-size:9px;color:var(--muted);line-height:1.4}
+.fc-gold{border-color:rgba(240,165,0,.2)}.fc-gold:hover,.fc-gold.sel{border-color:var(--gold);background:rgba(240,165,0,.1);color:var(--gold)}
+.fc-cyan{border-color:rgba(0,200,255,.2)}.fc-cyan:hover,.fc-cyan.sel{border-color:var(--cyan);background:rgba(0,200,255,.1);color:var(--cyan)}
+.fc-green{border-color:rgba(0,230,118,.2)}.fc-green:hover,.fc-green.sel{border-color:var(--green);background:rgba(0,230,118,.1);color:var(--green)}
+.fc-red{border-color:rgba(255,75,75,.2)}.fc-red:hover,.fc-red.sel{border-color:var(--red);background:rgba(255,75,75,.1);color:var(--red)}
+.fc-purple{border-color:rgba(180,79,255,.2)}.fc-purple:hover,.fc-purple.sel{border-color:var(--purple);background:rgba(180,79,255,.1);color:var(--purple)}
+.faction{display:flex;gap:10px;margin-top:18px}
+.fbtn{padding:12px 20px;border-radius:10px;border:none;font-family:'Exo 2',sans-serif;font-size:12px;font-weight:700;cursor:pointer;transition:all .2s}
+.fbtn-back{background:rgba(255,255,255,.06);color:var(--muted);border:1px solid var(--border)}.fbtn-back:hover{background:rgba(255,255,255,.12);color:var(--text)}
+.fbtn-next{background:rgba(240,165,0,.72);color:#080c1a;flex:1}.fbtn-next:hover{background:var(--gold)}
+.fbtn-start{background:linear-gradient(135deg,#00e676,#00b347);color:#050a14;font-size:14px;font-weight:900;flex:1}.fbtn-start:hover{background:linear-gradient(135deg,#69f0ae,#00e676);transform:translateY(-2px)}
+.badge-soon{display:inline-block;font-size:8px;color:var(--gold);background:rgba(240,165,0,.12);padding:2px 7px;border-radius:20px;margin-top:5px}
+.badge-ok{display:inline-block;font-size:8px;color:var(--green);background:rgba(0,230,118,.1);padding:2px 7px;border-radius:20px;margin-top:5px}
+/* GAME */
+#screen-game{flex-direction:column;justify-content:flex-start;align-items:stretch;overflow:hidden}
+.hud{display:flex;align-items:center;background:var(--bg2);border-bottom:1px solid var(--border);height:50px;flex-shrink:0;overflow-x:auto}
+.hi{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:0 12px;border-right:1px solid var(--border);height:100%;flex-shrink:0}
+.hl{font-size:6px;font-weight:700;letter-spacing:1.5px;color:var(--muted);text-transform:uppercase}
+.hv{font-family:'Orbitron',sans-serif;font-size:13px;font-weight:700}
+.hv.g{color:var(--gold)}.hv.gr{color:var(--green)}.hv.c{color:var(--cyan)}.hv.r{color:var(--red)}.hv.o{color:var(--orange)}
+.hud-right{margin-left:auto;display:flex;align-items:center;gap:7px;padding:0 12px;flex-shrink:0}
+.hbtn{padding:4px 10px;border-radius:6px;border:1px solid var(--border);background:transparent;color:var(--muted);font-family:'Exo 2',sans-serif;font-size:10px;cursor:pointer;transition:all .2s;white-space:nowrap}
+.hbtn:hover{border-color:var(--gold);color:var(--gold)}.hbtn.sp-on{border-color:var(--gold);color:var(--gold)}
+.prog-row{height:3px;background:var(--bg);flex-shrink:0;display:flex}
+.prog-exp{height:100%;background:linear-gradient(90deg,var(--purple),var(--cyan));transition:width .4s}
+.prog-win{height:100%;background:linear-gradient(90deg,var(--gold),var(--green));transition:width .3s;margin-left:auto}
+.game-body{display:flex;flex:1;overflow:hidden}
+.map-wrap{flex:1;overflow:auto;padding:12px;display:flex;align-items:center;justify-content:center;position:relative;background:var(--bg)}
+.cmap{display:grid;gap:2px}
+.cell{border-radius:5px;cursor:pointer;transition:transform .12s;display:flex;align-items:center;justify-content:center;flex-direction:column;border:2px solid transparent;position:relative;overflow:hidden}
+.cell:hover{transform:scale(1.08);z-index:10;border-color:rgba(255,255,255,.5)!important}
+.cell.sel{border-color:#fff!important;transform:scale(1.1)!important;z-index:11;box-shadow:0 0 16px rgba(255,255,255,.4)}
+.cell.water{background:#08213a!important;cursor:not-allowed}.cell.water:hover{transform:none!important}
+.cell.nc{animation:popIn .5s ease forwards}
+@keyframes popIn{from{opacity:0;transform:scale(.3)}to{opacity:1;transform:scale(1)}}
+.clbl{font-size:6px;font-weight:700;color:rgba(255,255,255,.75);position:absolute;bottom:2px;left:0;right:0;text-align:center;pointer-events:none}
+.ubadge{position:absolute;top:1px;right:1px;background:var(--gold);color:#080c1a;font-size:6px;font-weight:900;border-radius:3px;padding:0 2px;line-height:12px;pointer-events:none}
+.c-empty{background:var(--panel)}.c-player{background:linear-gradient(135deg,#004d28,#007a40)}
+.c-bot0{background:linear-gradient(135deg,#5a0000,#960000)}.c-bot1{background:linear-gradient(135deg,#5a2e00,#965000)}
+.c-bot2{background:linear-gradient(135deg,#30005a,#5a0096)}.c-bot3{background:linear-gradient(135deg,#003666,#005aaa)}
+.c-bot4{background:linear-gradient(135deg,#005a42,#009660)}.c-bot5{background:linear-gradient(135deg,#5a0044,#960070)}
+.c-neutral{background:linear-gradient(135deg,#182344,#1e2f5a)}.c-nd{background:linear-gradient(135deg,#1a3a22,#1a3a26);border:1px dashed rgba(0,230,118,.4)!important}
+.dt-rich::after{content:'';position:absolute;inset:0;background:rgba(240,165,0,.1);pointer-events:none}
+.dt-tourist::after{content:'';position:absolute;inset:0;background:rgba(0,200,255,.1);pointer-events:none}
+.dt-poor::after{content:'';position:absolute;inset:0;background:rgba(80,80,80,.15);pointer-events:none}
+/* SIDE */
+.side{width:272px;background:var(--panel);border-left:1px solid var(--border);display:flex;flex-direction:column;overflow:hidden;flex-shrink:0}
+.psec{padding:10px 13px;border-bottom:1px solid var(--border);flex-shrink:0}
+.psec.grow{flex:1;overflow-y:auto}
+.ptitle{font-size:7px;font-weight:700;letter-spacing:2px;color:var(--muted);text-transform:uppercase;margin-bottom:7px}
+.bstats{display:grid;grid-template-columns:1fr 1fr;gap:5px;margin-bottom:8px}
+.bst{background:rgba(255,255,255,.04);border-radius:6px;padding:6px;text-align:center}
+.bstv{font-family:'Orbitron',sans-serif;font-size:12px;font-weight:700;color:var(--gold)}
+.bstl{font-size:7px;color:var(--muted);margin-top:1px}
+.buy-list{display:flex;flex-direction:column;gap:4px;max-height:220px;overflow-y:auto}
+.bbtn{display:flex;align-items:center;gap:7px;padding:7px 9px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.06);border-radius:7px;cursor:pointer;transition:all .2s;width:100%;text-align:left}
+.bbtn:hover:not(:disabled){background:rgba(0,200,255,.1);border-color:var(--cyan)}.bbtn:disabled{opacity:.3;cursor:not-allowed}
+.bi2{font-size:16px;flex-shrink:0;width:20px}.bd{flex:1}.bn2{font-size:10px;font-weight:700}.bp{font-size:8px;color:var(--gold)}.bin{font-size:7px;color:var(--green)}
+.ubtn{display:flex;align-items:center;justify-content:space-between;padding:8px 10px;background:rgba(180,79,255,.07);border:1px solid rgba(180,79,255,.18);border-radius:7px;cursor:pointer;transition:all .2s;width:100%;margin-bottom:4px}
+.ubtn:hover:not(:disabled){background:rgba(180,79,255,.18);border-color:var(--purple)}.ubtn:disabled{opacity:.28;cursor:not-allowed}
+.sell-btn{width:100%;padding:8px;background:rgba(255,75,75,.1);border:1px solid rgba(255,75,75,.3);border-radius:7px;color:var(--red);font-family:'Exo 2',sans-serif;font-size:11px;font-weight:700;cursor:pointer;transition:all .2s;margin-top:7px}
+.sell-btn:hover{background:rgba(255,75,75,.22)}
+.agentbox{display:flex;flex-direction:column;gap:4px;max-height:95px;overflow-y:auto}
+.amsg{background:rgba(0,200,255,.05);border-left:2px solid var(--cyan);border-radius:0 6px 6px 0;padding:4px 7px;font-size:9px;line-height:1.4}
+.amsg .at{font-size:7px;color:var(--muted)}
+.clist{display:flex;flex-direction:column;gap:4px;max-height:140px;overflow-y:auto}
+.citem{display:flex;align-items:center;gap:6px;padding:6px 8px;background:rgba(255,255,255,.04);border-radius:7px}
+.cdot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.cname{font-size:10px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.cstat{font-size:8px;color:var(--muted)}
+.cmoney{font-family:'Orbitron',sans-serif;font-size:9px;color:var(--gold);flex-shrink:0}
+.myrow{border:1px solid rgba(0,230,118,.3);background:rgba(0,230,118,.04)}
+.bkrpt{opacity:.35;filter:grayscale(.8)}
+.ticker{height:30px;background:var(--bg2);border-top:1px solid var(--border);display:flex;align-items:center;flex-shrink:0;overflow:hidden;padding:0 12px;gap:8px}
+.tlbl{font-size:7px;font-weight:700;letter-spacing:2px;color:var(--gold);flex-shrink:0}
+.tscroll{flex:1;overflow:hidden}
+.tinner{white-space:nowrap;font-size:10px;color:var(--muted);animation:tspin 22s linear infinite}
+@keyframes tspin{0%{transform:translateX(100%)}100%{transform:translateX(-100%)}}
+.leg{position:absolute;bottom:10px;left:10px;background:rgba(6,9,26,.93);border:1px solid var(--border);border-radius:9px;padding:9px 12px;z-index:5}
+.ltitle{font-size:7px;font-weight:700;letter-spacing:2px;color:var(--muted);margin-bottom:6px}
+.litem{display:flex;align-items:center;gap:6px;margin-bottom:3px;font-size:9px}
+.ldot{width:8px;height:8px;border-radius:3px;flex-shrink:0}
+/* WIN */
+.win-overlay{position:fixed;inset:0;background:rgba(0,0,0,.88);z-index:600;display:flex;align-items:center;justify-content:center;backdrop-filter:blur(16px);opacity:0;pointer-events:none;transition:opacity .6s}
+.win-overlay.show{opacity:1;pointer-events:all}
+.win-box{background:linear-gradient(135deg,rgba(8,12,28,.98),rgba(14,22,44,.98));border:2px solid var(--gold);border-radius:24px;padding:36px;width:520px;text-align:center;box-shadow:0 0 80px rgba(240,165,0,.35)}
+.win-cup{font-size:66px;animation:cb 1s ease-in-out infinite}
+@keyframes cb{0%,100%{transform:translateY(0) rotate(-5deg)}50%{transform:translateY(-12px) rotate(5deg)}}
+.win-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:9px;margin:16px 0}
+.wst{background:rgba(255,255,255,.04);border-radius:10px;padding:10px}
+.wstv{font-family:'Orbitron',sans-serif;font-size:13px;font-weight:700;color:var(--gold)}
+.wstl{font-size:8px;color:var(--muted);margin-top:2px}
+/* WHEEL */
+.wheel-overlay{position:fixed;inset:0;background:rgba(0,0,0,.82);z-index:550;display:flex;align-items:center;justify-content:center;backdrop-filter:blur(12px);opacity:0;pointer-events:none;transition:opacity .3s}
+.wheel-overlay.show{opacity:1;pointer-events:all}
+.wheel-box{background:var(--panel);border:2px solid var(--gold);border-radius:22px;padding:28px;text-align:center;width:380px}
+/* MODALS */
+.modal{position:fixed;inset:0;background:rgba(0,0,0,.78);z-index:500;display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity .3s;backdrop-filter:blur(10px)}
+.modal.open{opacity:1;pointer-events:all}
+.mbox{background:var(--panel);border:1px solid var(--border);border-radius:18px;padding:24px;width:460px;max-height:84vh;overflow-y:auto;position:relative}
+.mbox.wide{width:520px}
+.mtitle{font-family:'Orbitron',sans-serif;font-size:15px;font-weight:700;color:var(--gold);margin-bottom:15px;text-align:center;letter-spacing:2px}
+.mclose{position:absolute;top:12px;right:12px;background:transparent;border:1px solid var(--border);border-radius:6px;color:var(--muted);cursor:pointer;font-size:14px;width:28px;height:28px;display:flex;align-items:center;justify-content:center}
+.mclose:hover{border-color:var(--red);color:var(--red)}
+.srow{display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid rgba(255,255,255,.05)}
+.slbl{font-size:12px}.slbl2{font-size:9px;color:var(--muted);margin-top:2px}
+.toggle{width:40px;height:21px;border-radius:11px;background:var(--border);border:none;cursor:pointer;position:relative;transition:background .2s;flex-shrink:0}
+.toggle.on{background:var(--green)}.toggle::after{content:'';position:absolute;top:2px;left:2px;width:17px;height:17px;border-radius:50%;background:#fff;transition:transform .2s}.toggle.on::after{transform:translateX(19px)}
+.ibtn{width:100%;padding:9px;border-radius:8px;border:1px solid var(--border);background:rgba(240,165,0,.13);color:var(--gold);font-family:'Exo 2',sans-serif;font-size:11px;font-weight:700;cursor:pointer;transition:all .2s;margin-bottom:5px}
+.ibtn:hover{background:rgba(240,165,0,.24)}.ibtn:disabled{opacity:.3;cursor:not-allowed}
+.sbtn2{padding:5px 11px;border-radius:6px;border:1px solid var(--border);background:transparent;color:var(--muted);font-family:'Exo 2',sans-serif;font-size:10px;cursor:pointer;transition:all .2s}
+.sbtn2:hover{border-color:var(--cyan);color:var(--cyan)}
+.fsec{background:rgba(255,255,255,.03);border-radius:10px;padding:12px;margin-bottom:10px}
+.fsect{font-size:8px;font-weight:700;letter-spacing:1.5px;color:var(--muted);margin-bottom:8px}
+.loan-box{background:rgba(255,75,75,.07);border:1px solid rgba(255,75,75,.2);border-radius:8px;padding:9px;margin-bottom:6px}
+.stock-row{display:flex;align-items:center;gap:8px;padding:8px;background:rgba(255,255,255,.04);border-radius:8px;margin-bottom:5px}
+.lb-item{display:flex;align-items:center;gap:10px;padding:9px 12px;background:rgba(255,255,255,.04);border-radius:9px;margin-bottom:6px}
+.lb-rank{font-family:'Orbitron',sans-serif;font-size:14px;font-weight:900;width:24px;text-align:center}
+.lb-info{flex:1}.lb-name2{font-size:12px;font-weight:700}.lb-data2{font-size:9px;color:var(--muted)}
+.lb-m{font-family:'Orbitron',sans-serif;font-size:11px;color:var(--gold)}
+.dmg-overlay{background:rgba(255,75,75,.1);border:1px solid rgba(255,75,75,.3);border-radius:8px;padding:8px;margin-top:7px;font-size:10px;color:var(--red);text-align:center}
+.ach-grid{display:grid;grid-template-columns:1fr 1fr;gap:7px}
+.ach-item{display:flex;align-items:center;gap:9px;padding:9px;background:rgba(255,255,255,.04);border-radius:9px;border:1px solid rgba(255,255,255,.06)}
+.ach-item.done{border-color:rgba(240,165,0,.3);background:rgba(240,165,0,.05)}
+.spin-btn{padding:13px 32px;border-radius:10px;border:none;background:linear-gradient(135deg,var(--gold),var(--orange));color:#080c1a;font-family:'Exo 2',sans-serif;font-size:14px;font-weight:900;cursor:pointer;margin-top:10px}
+.spin-btn:disabled{opacity:.4;cursor:not-allowed}
+/* popups */
+.evpop{position:fixed;bottom:42px;right:14px;background:var(--panel2);border:2px solid var(--gold);border-radius:12px;padding:11px 15px;max-width:240px;z-index:300;animation:slideR .4s ease;box-shadow:0 8px 28px rgba(0,0,0,.6)}
+@keyframes slideR{from{transform:translateX(120%);opacity:0}to{transform:translateX(0);opacity:1}}
+.ep-t{font-size:11px;font-weight:800;color:var(--gold);margin-bottom:2px}
+.ep-d{font-size:10px;color:var(--text);line-height:1.4}
+.bigann{position:fixed;top:66px;left:50%;transform:translateX(-50%);border-radius:14px;padding:14px 22px;z-index:400;text-align:center;animation:annPop .5s ease;box-shadow:0 0 40px rgba(0,0,0,.5)}
+@keyframes annPop{from{transform:translateX(-50%) scale(.6);opacity:0}to{transform:translateX(-50%) scale(1);opacity:1}}
+.bigann h2{font-family:'Orbitron',sans-serif;font-size:15px;font-weight:900;margin-bottom:4px}
+.hotdeal{position:fixed;top:66px;right:14px;background:rgba(18,4,4,.97);border:2px solid var(--red);border-radius:13px;padding:12px 16px;z-index:350;animation:popD .5s cubic-bezier(.18,.67,.46,1.4);max-width:215px}
+@keyframes popD{from{transform:scale(.4) rotate(-8deg);opacity:0}to{transform:scale(1) rotate(0);opacity:1}}
+.htimer{font-family:'Orbitron',sans-serif;font-size:22px;color:var(--red);margin:4px 0}
+.hdbuy{width:100%;padding:8px;background:rgba(255,75,75,.22);border:1px solid var(--red);border-radius:7px;color:#fff;font-family:'Exo 2',sans-serif;font-weight:800;font-size:11px;cursor:pointer;margin-top:5px}
+.hdbuy:hover{background:rgba(255,75,75,.4)}
+.save-ind{position:fixed;top:10px;right:14px;background:rgba(0,0,0,.8);border:1px solid var(--green);border-radius:8px;padding:5px 12px;font-size:10px;color:var(--green);z-index:700;animation:fadeIn .3s ease;display:none}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+</style>
+</head>
+<body>
+
+<!-- AUTH -->
+<div id="screen-auth" class="screen active">
+  <div id="bg-wrap"><div class="sky"></div><div id="star-layer"></div>
+    <svg class="skysvg" viewBox="0 0 1400 260" preserveAspectRatio="none" style="height:180px">
+      <rect x="0" y="140" width="1400" height="120" fill="#040810"/>
+      <rect x="80" y="72" width="85" height="188" fill="#0a1828"/><rect x="235" y="42" width="105" height="218" fill="#0c1e36"/>
+      <rect x="415" y="22" width="125" height="238" fill="#0a1828"/><rect x="640" y="12" width="145" height="248" fill="#0c1e36"/>
+      <rect x="890" y="32" width="115" height="228" fill="#0a1828"/><rect x="1090" y="44" width="135" height="216" fill="#0c1e36"/>
+      <rect x="92" y="82" width="9" height="7" fill="rgba(240,165,0,.7)" rx="1"/><rect x="106" y="82" width="9" height="7" fill="rgba(0,200,255,.5)" rx="1"/>
+      <rect x="424" y="34" width="11" height="8" fill="rgba(240,165,0,.8)" rx="1"/><rect x="440" y="34" width="11" height="8" fill="rgba(0,200,255,.5)" rx="1"/>
+      <rect x="650" y="24" width="13" height="10" fill="rgba(0,200,255,.8)" rx="1"/><rect x="669" y="24" width="13" height="10" fill="rgba(240,165,0,.7)" rx="1"/>
+      <rect x="900" y="44" width="11" height="8" fill="rgba(240,165,0,.6)" rx="1"/>
+      <rect x="1100" y="56" width="11" height="8" fill="rgba(240,165,0,.8)" rx="1"/>
+      <rect x="0" y="254" width="1400" height="6" fill="#030610"/>
+    </svg>
+    <div id="coin-layer"></div>
+  </div>
+  <div class="auth-box">
+    <div class="auth-logo">BUSINESS<br>WORLD</div>
+    <div class="auth-sub">TYCOON SIMULATOR v0.0.6</div>
+    <div class="server-status"><div class="status-dot" id="srv-dot"></div><span id="srv-txt">Server wird geprüft...</span><span id="srv-players"></span></div>
+    <div class="tabs">
+      <div class="tab on" id="tab-login" onclick="switchTab('login')">🔑 <span id="t-login">Login</span></div>
+      <div class="tab" id="tab-register" onclick="switchTab('register')">📝 <span id="t-reg">Registrieren</span></div>
+    </div>
+    <div class="auth-err" id="auth-err"></div>
+    <div id="form-login">
+      <input class="inp" id="in-user" placeholder="Username" type="text" autocomplete="username">
+      <input class="inp" id="in-pass" placeholder="Passwort" type="password" autocomplete="current-password">
+      <button class="auth-btn" id="btn-login" onclick="doLogin()">▶ Einloggen</button>
+      <div class="auth-link"><span id="t-noac">Kein Account?</span> <span onclick="switchTab('register')" id="t-regl">Jetzt registrieren</span></div>
+    </div>
+    <div id="form-register" style="display:none">
+      <div class="av-row" id="av-row"></div>
+      <input class="inp" id="reg-user" placeholder="Username (3-20 Zeichen)" type="text">
+      <input class="inp" id="reg-pass" placeholder="Passwort (min. 4 Zeichen)" type="password">
+      <input class="inp" id="reg-pass2" placeholder="Passwort wiederholen" type="password">
+      <button class="auth-btn" id="btn-reg" onclick="doRegister()">✅ Account erstellen</button>
+      <div class="auth-link"><span id="t-haveac">Schon registriert?</span> <span onclick="switchTab('login')" id="t-loginl">Einloggen</span></div>
+    </div>
+    <div class="lang-row">
+      <button class="lbtn on" id="lb-de" onclick="setLang('de')">🇩🇪 DE</button>
+      <button class="lbtn" id="lb-en" onclick="setLang('en')">🇬🇧 EN</button>
+      <button class="lbtn" id="lb-ru" onclick="setLang('ru')">🇷🇺 RU</button>
+    </div>
+  </div>
+</div>
+
+<!-- MENU -->
+<div id="screen-menu" class="screen">
+  <div id="bg2" style="position:absolute;inset:0;z-index:0"></div>
+  <div class="menu-wrap" style="z-index:1">
+    <div class="logo-big">BUSINESS<br>WORLD</div>
+    <div class="logo-tag">TYCOON SIMULATOR</div>
+    <div class="logo-ver">v0.0.6</div>
+    <div class="user-card" onclick="openModal('modal-profile')">
+      <div style="font-size:26px" id="menu-ava">🏢</div>
+      <div><div style="font-size:13px;font-weight:700;color:var(--gold)" id="menu-uname">Player</div><div style="font-size:9px;color:var(--muted)" id="menu-ulvl">Level 1</div></div>
+      <div class="online-badge">🟢 Online</div>
+    </div>
+    <div class="daily-card" id="daily-btn" onclick="openWheel()">🎰 <span id="t-daily">Tägliche Belohnung!</span></div>
+    <div class="menu-box">
+      <button class="mbtn primary" onclick="showScreen('mode')"><span class="ico">▶</span><span id="t-play">Spielen</span></button>
+      <button class="mbtn disabled-btn"><span class="ico">🌍</span><span id="t-online">Online Mode</span> <span style="font-size:8px;color:var(--gold);margin-left:auto;background:rgba(240,165,0,.12);padding:1px 7px;border-radius:20px" id="t-soon">Bald</span></button>
+      <button class="mbtn" onclick="openModal('modal-ach')"><span class="ico">🏅</span><span id="t-ach">Achievements</span></button>
+      <button class="mbtn" onclick="openModal('modal-lb')"><span class="ico">🏆</span><span id="t-lb">Bestenliste</span></button>
+      <button class="mbtn" onclick="openModal('modal-saves')"><span class="ico">💾</span><span id="t-saves">Speichern</span></button>
+      <button class="mbtn" onclick="openModal('modal-settings')"><span class="ico">⚙</span><span id="t-settings">Einstellungen</span></button>
+      <button class="mbtn" onclick="doLogout()"><span class="ico">🚪</span><span id="t-logout">Abmelden</span></button>
+    </div>
+    <div class="menu-foot" id="t-goal">Ziel: $10.000.000 — Werde der reichste Geschäftsmann! 🏆</div>
+  </div>
+</div>
+
+<!-- MODE / MAP / BOTS / DIFF -->
+<div id="screen-mode" class="screen">
+  <div id="bg3" style="position:absolute;inset:0;z-index:0"></div>
+  <div class="flow-wrap" style="z-index:1"><div class="flow-box" style="width:500px">
+    <div class="ftitle" id="t-mode_t">SPIELMODUS</div><div class="fsub" id="t-mode_s">Wie willst du spielen?</div>
+    <div class="fgrid g2">
+      <div class="fcard fc-gold sel" id="card-bot" onclick="selMode('bot')"><div class="ci">🤖</div><div class="cn" id="t-bot_m">BOT MODUS</div><div class="cd" id="t-bot_d">Offline vs clevere Bots</div><span class="badge-ok" id="t-avail">✓ Verfügbar</span></div>
+      <div class="fcard fc-cyan" onclick="showComing()"><div class="ci">🌍</div><div class="cn" id="t-on_m">ONLINE</div><div class="cd" id="t-on_d">Vs echte Spieler</div><span class="badge-soon" id="t-soon2">Bald</span></div>
+    </div>
+    <div class="faction"><button class="fbtn fbtn-back" onclick="showScreen('menu')">← <span id="t-back">Zurück</span></button><button class="fbtn fbtn-next" onclick="showScreen('mapsel')" id="t-next">Weiter →</button></div>
+  </div></div>
+</div>
+
+<div id="screen-mapsel" class="screen">
+  <div id="bg4" style="position:absolute;inset:0;z-index:0"></div>
+  <div class="flow-wrap" style="z-index:1"><div class="flow-box">
+    <div class="ftitle" id="t-map_t">KARTE WÄHLEN</div><div class="fsub" id="t-map_s">Karte expandiert bei 80% automatisch!</div>
+    <div class="fgrid g3">
+      <div class="fcard fc-cyan" id="map-small" onclick="selMap('small')"><div class="ci">🏙</div><div class="cn" id="t-sm">Klein</div><div class="cd">6×6 → 10×10</div></div>
+      <div class="fcard fc-gold sel" id="map-medium" onclick="selMap('medium')"><div class="ci">🌆</div><div class="cn" id="t-med">Mittel</div><div class="cd">8×8 → 12×12<br><span id="t-rec">Empfohlen</span></div></div>
+      <div class="fcard fc-red" id="map-metropolis" onclick="selMap('metropolis')"><div class="ci">🌃</div><div class="cn" id="t-met">Metropole</div><div class="cd">10×10 → 16×16</div></div>
+      <div class="fcard fc-cyan" id="map-island" onclick="selMap('island')"><div class="ci">🏝</div><div class="cn" id="t-isl">Insel</div><div class="cd" id="t-isl_d">Wasser · Teuer</div></div>
+      <div class="fcard fc-gold" id="map-industrial" onclick="selMap('industrial')"><div class="ci">🏭</div><div class="cn" id="t-ind">Industrie</div><div class="cd" id="t-ind_d">Fabriken</div></div>
+      <div class="fcard fc-green" id="map-random" onclick="selMap('random')"><div class="ci">🎲</div><div class="cn" id="t-ran">Zufall</div><div class="cd" id="t-ran_d">Jedes Mal neu!</div></div>
+    </div>
+    <div class="faction"><button class="fbtn fbtn-back" onclick="showScreen('mode')">← <span id="t-back2">Zurück</span></button><button class="fbtn fbtn-next" onclick="showScreen('botcnt')" id="t-next2">Weiter →</button></div>
+  </div></div>
+</div>
+
+<div id="screen-botcnt" class="screen">
+  <div id="bg5" style="position:absolute;inset:0;z-index:0"></div>
+  <div class="flow-wrap" style="z-index:1"><div class="flow-box" style="width:540px">
+    <div class="ftitle" id="t-bots_t">KONKURRENTEN</div><div class="fsub" id="t-bots_s">Bots kaufen, sabotieren und fusionieren!</div>
+    <div class="fgrid g4">
+      <div class="fcard fc-green" id="bots-1" onclick="selBots(1)"><div class="ci" style="font-size:26px">🤖</div><div class="cn">1 Bot</div><div class="cd" id="t-easy">Leicht</div></div>
+      <div class="fcard fc-gold sel" id="bots-3" onclick="selBots(3)"><div class="ci" style="font-size:20px">🤖🤖🤖</div><div class="cn">3 Bots</div><div class="cd" id="t-rec2">Empfohlen</div></div>
+      <div class="fcard fc-red" id="bots-5" onclick="selBots(5)"><div class="ci" style="font-size:16px">🤖×5</div><div class="cn">5 Bots</div><div class="cd" id="t-hard">Schwer</div></div>
+      <div class="fcard fc-purple" id="bots-7" onclick="selBots(7)"><div class="ci" style="font-size:13px">🤖×7</div><div class="cn">7 Bots</div><div class="cd">CHAOS!</div></div>
+    </div>
+    <div class="faction"><button class="fbtn fbtn-back" onclick="showScreen('mapsel')">← <span id="t-back3">Zurück</span></button><button class="fbtn fbtn-next" onclick="showScreen('diff')" id="t-next3">Weiter →</button></div>
+  </div></div>
+</div>
+
+<div id="screen-diff" class="screen">
+  <div id="bg6" style="position:absolute;inset:0;z-index:0"></div>
+  <div class="flow-wrap" style="z-index:1"><div class="flow-box" style="width:560px">
+    <div class="ftitle" id="t-diff_t">SCHWIERIGKEIT</div><div class="fsub" id="t-diff_s">Ziel: $10.000.000!</div>
+    <div class="fgrid g4">
+      <div class="fcard fc-green" id="diff-easy" onclick="selDiff('easy')"><div class="ci">😊</div><div class="cn" id="t-d_easy">Leicht</div><div class="cd">$15K Start<br><span id="t-lt">Niedrige Steuern</span></div></div>
+      <div class="fcard fc-gold sel" id="diff-normal" onclick="selDiff('normal')"><div class="ci">😐</div><div class="cn" id="t-d_norm">Normal</div><div class="cd">$5K Start<br><span id="t-fair">Fair</span></div></div>
+      <div class="fcard fc-red" id="diff-hard" onclick="selDiff('hard')"><div class="ci">😤</div><div class="cn" id="t-d_hard">Schwer</div><div class="cd">$2K Start<br><span id="t-ht">Hohe Steuern</span></div></div>
+      <div class="fcard fc-purple" id="diff-extreme" onclick="selDiff('extreme')"><div class="ci">💀</div><div class="cn" id="t-d_ext">Extrem</div><div class="cd">$500 Start<br><span id="t-surv">Überlebe!</span></div></div>
+    </div>
+    <div class="faction"><button class="fbtn fbtn-back" onclick="showScreen('botcnt')">← <span id="t-back4">Zurück</span></button><button class="fbtn fbtn-start" onclick="startGame()" id="t-sg">▶ SPIEL STARTEN</button></div>
+  </div></div>
+</div>
+
+<!-- GAME -->
+<div id="screen-game" class="screen">
+  <div class="hud">
+    <div class="hi"><div class="hl" id="hl-money">Geld</div><div class="hv g" id="h-money">$0</div></div>
+    <div class="hi"><div class="hl" id="hl-inc">Einnahmen/T</div><div class="hv gr" id="h-income">+$0</div></div>
+    <div class="hi"><div class="hl" id="hl-debt">Schulden</div><div class="hv r" id="h-debt">$0</div></div>
+    <div class="hi"><div class="hl" id="hl-lvl">Level</div><div class="hv c" id="h-level">1</div></div>
+    <div class="hi"><div class="hl" id="hl-rep">Ruf</div><div class="hv o" id="h-rep">0⭐</div></div>
+    <div class="hi"><div class="hl" id="hl-bld">Gebäude</div><div class="hv" id="h-bld">0</div></div>
+    <div class="hi"><div class="hl" id="hl-tax">Steuer</div><div class="hv r" id="h-tax">0%</div></div>
+    <div class="hud-right">
+      <div style="font-family:'Orbitron',sans-serif;font-size:9px;color:var(--muted)" id="h-day">Tag 1</div>
+      <button class="hbtn sp-on" id="sp1" onclick="setSpd(1)">×1</button>
+      <button class="hbtn" id="sp2" onclick="setSpd(2)">×2</button>
+      <button class="hbtn" id="sp3" onclick="setSpd(3)">×3</button>
+      <button class="hbtn" id="pause-btn" onclick="togglePause()">⏸</button>
+      <button class="hbtn" onclick="openModal('modal-finance')" style="border-color:rgba(240,165,0,.3);color:var(--gold)">💰 <span id="hl-fin">Finanzen</span></button>
+      <button class="hbtn" onclick="gameSave(0)">💾</button>
+      <button class="hbtn" onclick="openModal('modal-settings')">⚙</button>
+      <button class="hbtn" style="border-color:rgba(255,75,75,.3);color:var(--red)" onclick="exitToMenu()">✕</button>
+    </div>
+  </div>
+  <div class="prog-row"><div id="prog-exp" class="prog-exp" style="width:0%"></div><div style="flex:1"></div><div id="prog-win" class="prog-win" style="width:0%"></div></div>
+  <div class="game-body">
+    <div class="map-wrap" id="map-wrap">
+      <div class="cmap" id="cmap"></div>
+      <div class="leg" id="map-leg">
+        <div class="ltitle" id="l-legend">LEGENDE</div>
+        <div class="litem"><div class="ldot" style="background:#007a40"></div><span id="l-yours">Deine</span></div>
+        <div id="l-bots"></div>
+        <div class="litem"><div class="ldot" style="background:var(--panel)"></div><span id="l-empty">Leer</span></div>
+        <div class="litem"><div class="ldot" style="background:rgba(240,165,0,.3);border:1px solid var(--gold)"></div><span id="l-rich">Reich</span></div>
+      </div>
+    </div>
+    <div class="side">
+      <div class="psec grow" id="cell-panel">
+        <div class="ptitle" id="p-sel">AUSGEWÄHLT</div>
+        <div style="text-align:center;padding:18px 0;color:var(--muted);font-size:11px" id="p-click">Klicke eine Karte-Zelle</div>
+      </div>
+      <div class="psec"><div class="ptitle">🤵 <span id="p-agent">BERATER</span></div><div class="agentbox" id="agentbox"><div class="amsg"><div class="at">Tag 1</div><span id="p-welcome">Willkommen! Ziel: $10M!</span></div></div></div>
+      <div class="psec" style="flex-shrink:0"><div class="ptitle">🏆 <span id="p-rank">RANGLISTE</span></div><div class="clist" id="clist"></div></div>
+    </div>
+  </div>
+  <div class="ticker"><div class="tlbl">📡</div><div class="tscroll"><span class="tinner" id="ticker-msg">Business World v0.0.6 — Server-Multiplayer — Spiele mit Freunden! &nbsp;&nbsp;&nbsp;&nbsp; Business World v0.0.6</span></div></div>
+</div>
+
+<!-- WIN -->
+<div class="win-overlay" id="win-overlay">
+  <div class="win-box">
+    <div class="win-cup">🏆</div>
+    <div style="font-family:'Orbitron',sans-serif;font-size:30px;font-weight:900;color:var(--gold);text-shadow:0 0 40px rgba(240,165,0,.6);margin:8px 0 5px" id="w-title">GEWONNEN!</div>
+    <div style="font-size:12px;color:var(--muted);margin-bottom:10px" id="w-sub">Geschäftsmagnat!</div>
+    <div style="font-family:'Orbitron',sans-serif;font-size:40px;font-weight:900;color:var(--green);text-shadow:0 0 22px rgba(0,230,118,.4);margin:10px 0" id="w-money">$10.000.000</div>
+    <div class="win-stats" id="w-stats"></div>
+    <div style="font-size:10px;color:var(--muted);margin-bottom:5px" id="w-nl">Name für Bestenliste:</div>
+    <input style="width:100%;padding:10px 14px;background:rgba(255,255,255,.06);border:1px solid var(--border);border-radius:9px;color:var(--text);font-family:'Exo 2',sans-serif;font-size:13px;margin:10px 0 14px" id="win-name" placeholder="CEO Player">
+    <div style="display:flex;gap:9px;justify-content:center">
+      <button class="auth-btn" style="flex:2" onclick="saveToLB()">🏆 <span id="w-save">Rekord speichern</span></button>
+      <button style="padding:12px 18px;border-radius:10px;border:1px solid var(--green);background:rgba(0,230,118,.1);color:var(--green);cursor:pointer;font-family:'Exo 2',sans-serif;font-weight:800" onclick="startGame()">↺</button>
+      <button style="padding:12px 18px;border-radius:10px;border:1px solid var(--border);background:rgba(255,255,255,.04);color:var(--muted);cursor:pointer;font-family:'Exo 2',sans-serif" onclick="closeWin()">←</button>
+    </div>
+  </div>
+</div>
+
+<!-- WHEEL -->
+<div class="wheel-overlay" id="wheel-overlay">
+  <div class="wheel-box">
+    <div style="font-family:'Orbitron',sans-serif;font-size:16px;font-weight:700;color:var(--gold)" id="wh-title">🎰 GLÜCKSRAD</div>
+    <div style="font-size:10px;color:var(--muted);margin-top:4px" id="wh-sub">Täglich 1 Spin!</div>
+    <canvas id="wheel-canvas" width="260" height="260" style="border-radius:50%;border:4px solid var(--gold);box-shadow:0 0 20px rgba(240,165,0,.4);margin:14px auto;display:block"></canvas>
+    <div id="wh-result" style="font-size:13px;font-weight:700;color:var(--green);min-height:20px"></div>
+    <button class="spin-btn" id="spin-btn" onclick="spinWheel()" id="wh-spin">🎲 DREHEN!</button>
+    <button onclick="closeModal('wheel-overlay')" style="display:block;margin:10px auto 0;background:transparent;border:none;color:var(--muted);cursor:pointer;font-family:'Exo 2',sans-serif;font-size:10px" id="wh-close">Schließen</button>
+  </div>
+</div>
+
+<!-- MODALS -->
+<div class="modal" id="modal-settings">
+  <div class="mbox"><div class="mtitle" id="ms-title">⚙ EINSTELLUNGEN</div><button class="mclose" onclick="closeModal('modal-settings')">✕</button>
+    <div class="srow"><div><div class="slbl" id="ms-lang">Sprache</div></div><div style="display:flex;gap:6px"><button class="lbtn" id="s-lb-de" onclick="setLang('de')">🇩🇪 DE</button><button class="lbtn" id="s-lb-en" onclick="setLang('en')">🇬🇧 EN</button><button class="lbtn" id="s-lb-ru" onclick="setLang('ru')">🇷🇺 RU</button></div></div>
+    <div class="srow"><div><div class="slbl" id="ms-music">Musik</div></div><button class="toggle" id="toggle-music" onclick="toggleMusic()"></button></div>
+    <div class="srow"><div><div class="slbl" id="ms-vol">Lautstärke</div></div><div style="display:flex;align-items:center;gap:10px;width:160px"><input type="range" min="0" max="100" value="60" id="vol-range" style="flex:1;accent-color:var(--cyan)" oninput="setMusicVol(this.value)"><div style="font-family:'Orbitron',sans-serif;font-size:12px;color:var(--cyan);width:28px;text-align:right" id="vol-val">60</div></div></div>
+    <div class="srow"><div><div class="slbl" id="ms-sfx">Sound</div></div><button class="toggle on" id="toggle-sfx" onclick="toggleSet('sfx')"></button></div>
+    <div class="srow" style="border:none"><div><div class="slbl" id="ms-auto">Autosave</div><div class="slbl2" id="ms-auto2">Alle 30 Spieltage (Server)</div></div><button class="toggle on" id="toggle-autosave" onclick="toggleSet('autosave')"></button></div>
+  </div>
+</div>
+
+<div class="modal" id="modal-ach">
+  <div class="mbox wide"><div class="mtitle" id="ma-title">🏅 ACHIEVEMENTS</div><button class="mclose" onclick="closeModal('modal-ach')">✕</button><div class="ach-grid" id="ach-grid"></div></div>
+</div>
+
+<div class="modal" id="modal-lb">
+  <div class="mbox"><div class="mtitle" id="mlb-title">🏆 BESTENLISTE</div><button class="mclose" onclick="closeModal('modal-lb')">✕</button><div id="lb-content"><div style="text-align:center;color:var(--muted);padding:20px">Wird geladen...</div></div></div>
+</div>
+
+<div class="modal" id="modal-profile">
+  <div class="mbox"><div class="mtitle" id="mp-title">👤 PROFIL</div><button class="mclose" onclick="closeModal('modal-profile')">✕</button><div id="profile-content"></div></div>
+</div>
+
+<div class="modal" id="modal-saves">
+  <div class="mbox"><div class="mtitle" id="msv-title">💾 SPEICHERSTÄNDE</div><button class="mclose" onclick="closeModal('modal-saves')">✕</button><div id="saves-content"><div style="text-align:center;color:var(--muted);padding:20px">Wird geladen...</div></div></div>
+</div>
+
+<div class="modal" id="modal-finance">
+  <div class="mbox wide"><div class="mtitle" id="mf-title">💰 FINANZEN</div><button class="mclose" onclick="closeModal('modal-finance')">✕</button><div id="fin-content"></div></div>
+</div>
+
+<div class="modal" id="modal-coming">
+  <div class="mbox" style="text-align:center"><div class="mtitle">🌍 ONLINE MODE</div><button class="mclose" onclick="closeModal('modal-coming')">✕</button>
+    <div style="font-size:48px;margin:18px 0">🚧</div>
+    <div style="font-size:15px;font-weight:800;color:var(--gold);margin-bottom:10px" id="cs-title">In Entwicklung!</div>
+    <div style="color:var(--muted);font-size:12px;line-height:1.7" id="cs-text">Online Modus kommt bald!</div>
+    <button class="ibtn" onclick="closeModal('modal-coming')" style="margin-top:16px;width:auto;padding:9px 28px">OK</button>
+  </div>
+</div>
+
+<!-- Save Indicator -->
+<div class="save-ind" id="save-ind">💾 Gespeichert!</div>
+
+<script>
+// ═══════════════════════════════════════════
+//   SERVER API
+// ═══════════════════════════════════════════
+const API = window.location.origin + '/api';
+let authToken = null;
+
+async function apiCall(method, path, body = null) {
+  const opts = {
+    method,
+    headers: { 'Content-Type': 'application/json' },
+  };
+  if (authToken) opts.headers['Authorization'] = 'Bearer ' + authToken;
+  if (body) opts.body = JSON.stringify(body);
+  try {
+    const r = await fetch(API + path, opts);
+    return await r.json();
+  } catch(e) {
+    return { error: 'Server nicht erreichbar.' };
+  }
+}
+
+async function checkServer() {
+  const dot = document.getElementById('srv-dot');
+  const txt = document.getElementById('srv-txt');
+  const r = await apiCall('GET', '/status');
+  if (r.status === 'online') {
+    dot.className = 'status-dot online';
+    txt.textContent = lang === 'de' ? `Server online · ${r.players} Spieler` : lang === 'ru' ? `Сервер онлайн · ${r.players} игроков` : `Server online · ${r.players} players`;
+  } else {
+    dot.className = 'status-dot offline';
+    txt.textContent = lang === 'de' ? 'Server offline!' : lang === 'ru' ? 'Сервер недоступен!' : 'Server offline!';
+  }
+}
+
+// ═══════════════════════════════════════════
+//   LANGUAGES
+// ═══════════════════════════════════════════
+const L = {
+  de: {
+    't-login':'Login','t-reg':'Registrieren','t-noac':'Kein Account?','t-regl':'Jetzt registrieren',
+    't-haveac':'Schon registriert?','t-loginl':'Einloggen',
+    't-play':'Spielen','t-online':'Online Mode','t-ach':'Achievements','t-lb':'Bestenliste',
+    't-saves':'Speichern','t-settings':'Einstellungen','t-logout':'Abmelden',
+    't-daily':'Tägliche Belohnung!','t-goal':'Ziel: $10.000.000 — Werde der reichste! 🏆','t-soon':'Bald',
+    't-mode_t':'SPIELMODUS','t-mode_s':'Wie willst du spielen?','t-bot_m':'BOT MODUS','t-bot_d':'Offline vs clevere Bots',
+    't-on_m':'ONLINE','t-on_d':'Vs echte Spieler','t-avail':'✓ Verfügbar','t-soon2':'Bald',
+    't-back':'Zurück','t-next':'Weiter →','t-back2':'Zurück','t-next2':'Weiter →','t-back3':'Zurück','t-next3':'Weiter →','t-back4':'Zurück',
+    't-map_t':'KARTE WÄHLEN','t-map_s':'Karte expandiert bei 80%!',
+    't-sm':'Klein','t-med':'Mittel','t-met':'Metropole','t-isl':'Insel','t-ind':'Industrie','t-ran':'Zufall',
+    't-rec':'Empfohlen','t-isl_d':'Wasser · Teuer','t-ind_d':'Fabriken','t-ran_d':'Jedes Mal neu!',
+    't-bots_t':'KONKURRENTEN','t-bots_s':'Bots kaufen, sabotieren und fusionieren!',
+    't-easy':'Leicht','t-rec2':'Empfohlen','t-hard':'Schwer',
+    't-diff_t':'SCHWIERIGKEIT','t-diff_s':'Ziel: $10.000.000!',
+    't-d_easy':'Leicht','t-d_norm':'Normal','t-d_hard':'Schwer','t-d_ext':'Extrem',
+    't-lt':'Niedrige Steuern','t-fair':'Fair','t-ht':'Hohe Steuern','t-surv':'Überlebe!','t-sg':'▶ SPIEL STARTEN',
+    'hl-money':'Geld','hl-inc':'Einnahmen/T','hl-debt':'Schulden','hl-lvl':'Level','hl-rep':'Ruf',
+    'hl-bld':'Gebäude','hl-tax':'Steuer','hl-fin':'Finanzen',
+    'p-sel':'AUSGEWÄHLT','p-click':'Klicke eine Karte-Zelle','p-agent':'BERATER',
+    'p-welcome':'Willkommen! Ziel: $10M!','p-rank':'RANGLISTE',
+    'l-legend':'LEGENDE','l-yours':'Deine','l-empty':'Leer','l-rich':'Reich',
+    'ms-title':'⚙ EINSTELLUNGEN','ms-lang':'Sprache','ms-music':'Musik','ms-vol':'Lautstärke',
+    'ms-sfx':'Sound','ms-auto':'Autosave','ms-auto2':'Alle 30 Spieltage (Server)',
+    'ma-title':'🏅 ACHIEVEMENTS','mlb-title':'🏆 BESTENLISTE','mp-title':'👤 PROFIL',
+    'msv-title':'💾 SPEICHERSTÄNDE','mf-title':'💰 FINANZEN',
+    'wh-title':'🎰 GLÜCKSRAD','wh-sub':'Täglich 1 Spin!','wh-close':'Schließen',
+    'w-title':'GEWONNEN!','w-sub':'Geschäftsmagnat!','w-save':'Rekord speichern','w-nl':'Name für Bestenliste:',
+    'cs-title':'In Entwicklung!','cs-text':'Online Modus kommt bald!',
+    'day':'Tag','no-funds':'⚠ Nicht genug Geld!','yours':'Dein Gebäude','enemy':'Feindlich',
+    'free-plot':'Freies Grundstück','new-plot':'🆕 Neues Grundstück','city-bld':'Stadtgebäude',
+    'dist':'Viertel','income':'Einnahmen','roi':'Amortis.','upgrade':'Verbessern','sell':'Verkaufen (60%)',
+    'max-level':'Max Level! +120%','buy':'Kaufen','done':'Fertig',
+    'loans':'Kredite','take-loan':'Kredit','payoff':'Tilgen',
+    'insurance':'Versicherung','buy-ins':'Versicherung $2000','active':'Aktiv','inactive':'Inaktiv',
+    'stocks':'Aktien','lb-empty':'Noch keine Rekorde!',
+    'no-funds-ins':'⚠ Nicht genug für Versicherung.',
+    'loan-taken':'💳 Kredit erhalten!','loan-paid':'✅ Getilgt!',
+    'insured':'🛡 Versicherung aktiv!','fire-ins':'🛡 Versicherung hat geschützt!',
+    'fire-hit':'🔥 Feuer! -$3000','fire-destroy':'🔥 Feuer! Zerstört!',
+    'map-full':'🏙 Karte voll! Mieteinnahmen aktiv.',
+    'new-dist':'🏙 Neues Viertel! Karte SIZE×SIZE.',
+    'bankrupt':'NAME ist pleite!','repaired':'🔧 Repariert!',
+    'tip1':'💡 Reiche Viertel = ×1.8 Einnahmen!','tip2':'💡 Max Upgrade = +120%!','tip3':'💡 Karte expandiert bei 80%!',
+    'tip4':'💡 Versicherung schützt vor Feuer!','tip5':'💡 Touristische Viertel = ×1.8!',
+    'exit_c':'Spiel beenden?','logout_c':'Abmelden?','saved':'💾 Gespeichert!','saved-server':'💾 Auf Server gespeichert!',
+  },
+  en:{
+    't-login':'Login','t-reg':'Register','t-noac':'No account?','t-regl':'Register now',
+    't-haveac':'Already registered?','t-loginl':'Login',
+    't-play':'Play','t-online':'Online Mode','t-ach':'Achievements','t-lb':'Leaderboard',
+    't-saves':'Saves','t-settings':'Settings','t-logout':'Logout',
+    't-daily':'Daily Reward!','t-goal':'Goal: $10,000,000 — Be the richest! 🏆','t-soon':'Soon',
+    't-mode_t':'GAME MODE','t-mode_s':'How do you want to play?','t-bot_m':'BOT MODE','t-bot_d':'Offline vs smart bots',
+    't-on_m':'ONLINE','t-on_d':'Vs real players','t-avail':'✓ Available','t-soon2':'Soon',
+    't-back':'Back','t-next':'Next →','t-back2':'Back','t-next2':'Next →','t-back3':'Back','t-next3':'Next →','t-back4':'Back',
+    't-map_t':'CHOOSE MAP','t-map_s':'Map expands at 80%!',
+    't-sm':'Small','t-med':'Medium','t-met':'Metropolis','t-isl':'Island','t-ind':'Industrial','t-ran':'Random',
+    't-rec':'Recommended','t-isl_d':'Water · Expensive','t-ind_d':'Factories','t-ran_d':'New every time!',
+    't-bots_t':'COMPETITORS','t-bots_s':'Bots buy, sabotage and merge!',
+    't-easy':'Easy','t-rec2':'Recommended','t-hard':'Hard',
+    't-diff_t':'DIFFICULTY','t-diff_s':'Goal: $10,000,000!',
+    't-d_easy':'Easy','t-d_norm':'Normal','t-d_hard':'Hard','t-d_ext':'Extreme',
+    't-lt':'Low taxes','t-fair':'Fair','t-ht':'High taxes','t-surv':'Survive!','t-sg':'▶ START GAME',
+    'hl-money':'Money','hl-inc':'Income/day','hl-debt':'Debt','hl-lvl':'Level','hl-rep':'Rep',
+    'hl-bld':'Buildings','hl-tax':'Tax','hl-fin':'Finance',
+    'p-sel':'SELECTED','p-click':'Click a map cell','p-agent':'AGENT',
+    'p-welcome':'Welcome! Goal: $10M!','p-rank':'RANKINGS',
+    'l-legend':'LEGEND','l-yours':'Yours','l-empty':'Empty','l-rich':'Rich',
+    'ms-title':'⚙ SETTINGS','ms-lang':'Language','ms-music':'Music','ms-vol':'Volume',
+    'ms-sfx':'Sound','ms-auto':'Autosave','ms-auto2':'Every 30 game days (Server)',
+    'ma-title':'🏅 ACHIEVEMENTS','mlb-title':'🏆 LEADERBOARD','mp-title':'👤 PROFILE',
+    'msv-title':'💾 SAVES','mf-title':'💰 FINANCE',
+    'wh-title':'🎰 LUCKY WHEEL','wh-sub':'1 Spin per day!','wh-close':'Close',
+    'w-title':'YOU WIN!','w-sub':'Business Magnate!','w-save':'Save Record','w-nl':'Your name for leaderboard:',
+    'cs-title':'In Development!','cs-text':'Online mode coming soon!',
+    'day':'Day','no-funds':'⚠ Not enough funds!','yours':'Your building','enemy':'Enemy',
+    'free-plot':'Free plot','new-plot':'🆕 New plot','city-bld':'City building',
+    'dist':'District','income':'Income','roi':'Payback','upgrade':'Upgrade','sell':'Sell (60%)',
+    'max-level':'Max Level! +120%','buy':'Buy','done':'Done',
+    'loans':'Loans','take-loan':'Take Loan','payoff':'Pay off',
+    'insurance':'Insurance','buy-ins':'Buy insurance $2000','active':'Active','inactive':'Inactive',
+    'stocks':'Stocks','lb-empty':'No records yet!',
+    'no-funds-ins':'⚠ Not enough for insurance.',
+    'loan-taken':'💳 Loan received!','loan-paid':'✅ Loan paid off!',
+    'insured':'🛡 Insurance active!','fire-ins':'🛡 Insurance protected!',
+    'fire-hit':'🔥 Fire! -$3000','fire-destroy':'🔥 Fire! Destroyed!',
+    'map-full':'🏙 Map full! Rental income active.',
+    'new-dist':'🏙 New district! Map SIZE×SIZE.',
+    'bankrupt':'NAME went bankrupt!','repaired':'🔧 Repaired!',
+    'tip1':'💡 Rich districts = ×1.8 income!','tip2':'💡 Max upgrade = +120%!','tip3':'💡 Map expands at 80%!',
+    'tip4':'💡 Insurance protects from fire!','tip5':'💡 Tourist districts = ×1.8!',
+    'exit_c':'Exit game?','logout_c':'Log out?','saved':'💾 Saved!','saved-server':'💾 Saved to Server!',
+  },
+  ru:{
+    't-login':'Войти','t-reg':'Регистрация','t-noac':'Нет аккаунта?','t-regl':'Зарегистрироваться',
+    't-haveac':'Уже есть аккаунт?','t-loginl':'Войти',
+    't-play':'Играть','t-online':'Онлайн','t-ach':'Достижения','t-lb':'Рекорды',
+    't-saves':'Сохранения','t-settings':'Настройки','t-logout':'Выйти',
+    't-daily':'Ежедневная награда!','t-goal':'Цель: $10,000,000 — Стань богатейшим! 🏆','t-soon':'Скоро',
+    't-mode_t':'РЕЖИМ','t-mode_s':'Как хочешь играть?','t-bot_m':'БОТ МОД','t-bot_d':'Офлайн vs умные боты',
+    't-on_m':'ОНЛАЙН','t-on_d':'Vs реальные игроки','t-avail':'✓ Доступно','t-soon2':'Скоро',
+    't-back':'Назад','t-next':'Дальше →','t-back2':'Назад','t-next2':'Дальше →','t-back3':'Назад','t-next3':'Дальше →','t-back4':'Назад',
+    't-map_t':'ВЫБОР КАРТЫ','t-map_s':'Карта расширяется при 80%!',
+    't-sm':'Малая','t-med':'Средняя','t-met':'Мегаполис','t-isl':'Остров','t-ind':'Индустрия','t-ran':'Случайная',
+    't-rec':'Рекомендуется','t-isl_d':'Вода · Дорого','t-ind_d':'Заводы','t-ran_d':'Каждый раз новая!',
+    't-bots_t':'КОНКУРЕНТЫ','t-bots_s':'Боты покупают, саботируют и сливаются!',
+    't-easy':'Легко','t-rec2':'Рекомендуется','t-hard':'Сложно',
+    't-diff_t':'СЛОЖНОСТЬ','t-diff_s':'Цель: $10,000,000!',
+    't-d_easy':'Легко','t-d_norm':'Нормально','t-d_hard':'Сложно','t-d_ext':'Экстрим',
+    't-lt':'Низкие налоги','t-fair':'Честная игра','t-ht':'Высокие налоги','t-surv':'Выживи!','t-sg':'▶ НАЧАТЬ ИГРУ',
+    'hl-money':'Деньги','hl-inc':'Доход/день','hl-debt':'Долг','hl-lvl':'Уровень','hl-rep':'Репутация',
+    'hl-bld':'Зданий','hl-tax':'Налог','hl-fin':'Финансы',
+    'p-sel':'ВЫБРАНО','p-click':'Нажми на клетку карты','p-agent':'АГЕНТ',
+    'p-welcome':'Добро пожаловать! Цель: $10M!','p-rank':'РЕЙТИНГ',
+    'l-legend':'ЛЕГЕНДА','l-yours':'Твои','l-empty':'Пусто','l-rich':'Богатый',
+    'ms-title':'⚙ НАСТРОЙКИ','ms-lang':'Язык','ms-music':'Музыка','ms-vol':'Громкость',
+    'ms-sfx':'Звуки','ms-auto':'Автосохранение','ms-auto2':'Каждые 30 дней (Сервер)',
+    'ma-title':'🏅 ДОСТИЖЕНИЯ','mlb-title':'🏆 РЕКОРДЫ','mp-title':'👤 ПРОФИЛЬ',
+    'msv-title':'💾 СОХРАНЕНИЯ','mf-title':'💰 ФИНАНСЫ',
+    'wh-title':'🎰 КОЛЕСО УДАЧИ','wh-sub':'1 Спин в день!','wh-close':'Закрыть',
+    'w-title':'ВЫ ПОБЕДИЛИ!','w-sub':'Бизнес-магнат!','w-save':'Сохранить рекорд','w-nl':'Ваше имя для рекорда:',
+    'cs-title':'В разработке!','cs-text':'Онлайн появится скоро!',
+    'day':'День','no-funds':'⚠ Недостаточно средств!','yours':'Ваше здание','enemy':'Враждебно',
+    'free-plot':'Свободный участок','new-plot':'🆕 Новый участок','city-bld':'Городское здание',
+    'dist':'Район','income':'Доход','roi':'Окупаемость','upgrade':'Улучшить','sell':'Продать (60%)',
+    'max-level':'Макс Уровень! +120%','buy':'Купить','done':'Готово',
+    'loans':'Кредиты','take-loan':'Кредит','payoff':'Погасить',
+    'insurance':'Страховка','buy-ins':'Страховка $2000','active':'Активна','inactive':'Не активна',
+    'stocks':'Акции','lb-empty':'Нет рекордов! Стань первым!',
+    'no-funds-ins':'⚠ Недостаточно для страховки.',
+    'loan-taken':'💳 Кредит получен!','loan-paid':'✅ Кредит погашен!',
+    'insured':'🛡 Страховка активна!','fire-ins':'🛡 Страховка защитила!',
+    'fire-hit':'🔥 Пожар! -$3000','fire-destroy':'🔥 Пожар! Уничтожено!',
+    'map-full':'🏙 Карта заполнена! Аренда активна.',
+    'new-dist':'🏙 Новый район! Карта SIZE×SIZE.',
+    'bankrupt':'NAME обанкротился!','repaired':'🔧 Починено!',
+    'tip1':'💡 Богатые районы = ×1.8 дохода!','tip2':'💡 Макс улучшение = +120%!','tip3':'💡 Карта расширяется при 80%!',
+    'tip4':'💡 Страховка от пожара!','tip5':'💡 Туристический район = ×1.8!',
+    'exit_c':'Выйти из игры?','logout_c':'Выйти из аккаунта?','saved':'💾 Сохранено!','saved-server':'💾 Сохранено на сервер!',
+  }
+};
+let lang='de';
+function T(k){return (L[lang]||L.de)[k]||(L.de)[k]||k;}
+function setLang(l){
+  lang=l;
+  document.querySelectorAll('.lbtn').forEach(b=>b.classList.remove('on'));
+  ['lb-'+l,'s-lb-'+l].forEach(id=>document.getElementById(id)?.classList.add('on'));
+  Object.keys(L.de).forEach(k=>{const el=document.getElementById(k);if(el&&el.tagName!=='INPUT')el.textContent=T(k);});
+  try{localStorage.setItem('be6_lang',l);}catch(e){}
+}
+
+// ═══════════════════════════════════════════
+//   AUTH
+// ═══════════════════════════════════════════
+const AVATARS=['🏢','👑','💼','🦁','🐉','💎','🔥','⚡','🎯','🌟','🦅','🏆'];
+let currentUser=null, selAvatar=AVATARS[0], userData={};
+
+function initAvatarRow(){
+  const row=document.getElementById('av-row');row.innerHTML='';
+  AVATARS.forEach(av=>{
+    const btn=document.createElement('button');btn.className='av-btn'+(av===selAvatar?' on':'');
+    btn.textContent=av;btn.onclick=()=>{selAvatar=av;initAvatarRow();};row.appendChild(btn);
+  });
+}
+function switchTab(tab){
+  ['login','register'].forEach(t=>{
+    document.getElementById('tab-'+t).classList.toggle('on',t===tab);
+    document.getElementById('form-'+t).style.display=t===tab?'block':'none';
+  });
+  document.getElementById('auth-err').textContent='';
+  if(tab==='register')initAvatarRow();
+}
+function setAuthErr(msg){document.getElementById('auth-err').textContent=msg;}
+function setAuthLoading(btn,loading){document.getElementById(btn).disabled=loading;}
+
+async function doLogin(){
+  const u=document.getElementById('in-user').value.trim();
+  const p=document.getElementById('in-pass').value;
+  if(!u||!p){setAuthErr(lang==='ru'?'Заполни все поля.':lang==='en'?'Fill all fields.':'Alle Felder ausfüllen.');return;}
+  setAuthLoading('btn-login',true);setAuthErr('');
+  const r=await apiCall('POST','/login',{username:u,password:p});
+  setAuthLoading('btn-login',false);
+  if(r.error){setAuthErr(r.error);return;}
+  authToken=r.token;currentUser=r.username;userData=r.user||{};
+  afterLogin();
+}
+async function doRegister(){
+  const u=document.getElementById('reg-user').value.trim();
+  const p=document.getElementById('reg-pass').value;
+  const p2=document.getElementById('reg-pass2').value;
+  if(!u||!p||!p2){setAuthErr(lang==='ru'?'Заполни все поля.':lang==='en'?'Fill all fields.':'Alle Felder ausfüllen.');return;}
+  if(p!==p2){setAuthErr(lang==='ru'?'Пароли не совпадают.':lang==='en'?"Passwords don't match.":'Passwörter stimmen nicht überein.');return;}
+  setAuthLoading('btn-reg',true);setAuthErr('');
+  const r=await apiCall('POST','/register',{username:u,password:p,avatar:selAvatar});
+  setAuthLoading('btn-reg',false);
+  if(r.error){setAuthErr(r.error);return;}
+  authToken=r.token;currentUser=r.username;userData=r.user||{};
+  afterLogin();
+}
+function afterLogin(){
+  document.getElementById('menu-ava').textContent=userData.avatar||'🏢';
+  document.getElementById('menu-uname').textContent=currentUser;
+  document.getElementById('menu-ulvl').textContent=`Level ${Math.floor((userData.wins||0)/3)+1} · ${userData.wins||0} Wins`;
+  document.getElementById('win-name').value=currentUser;
+  // Save token to localStorage for auto-login
+  try{localStorage.setItem('be6_token',authToken);localStorage.setItem('be6_user',currentUser);}catch(e){}
+  checkDailyReward();
+  showScreen('menu');
+}
+async function doLogout(){
+  if(!confirm(T('logout_c')))return;
+  await apiCall('POST','/logout');
+  authToken=null;currentUser=null;userData={};
+  try{localStorage.removeItem('be6_token');localStorage.removeItem('be6_user');}catch(e){}
+  showScreen('auth');
+}
+async function updateProfile(data){
+  userData=Object.assign(userData,data);
+  await apiCall('POST','/profile/update',data);
+}
+
+// ═══════════════════════════════════════════
+//   MUSIC
+// ═══════════════════════════════════════════
+let musicOn=false,audioCtx=null,musicGain=null,musicSched=null,musicVol=.6;
+const CHORDS=[[110,138.59,164.81],[87.31,110,130.81],[130.81,164.81,196],[98,123.47,146.83]];
+function toggleMusic(){musicOn?stopMusic():startMusic();document.getElementById('toggle-music')?.classList.toggle('on',musicOn);}
+function startMusic(){
+  if(musicOn)return;
+  try{
+    if(audioCtx)try{audioCtx.close();}catch(e){}
+    audioCtx=new(window.AudioContext||window.webkitAudioContext)();
+    musicGain=audioCtx.createGain();musicGain.gain.value=musicVol*.14;musicGain.connect(audioCtx.destination);
+    const delay=audioCtx.createDelay(.8);const dfb=audioCtx.createGain();
+    delay.delayTime.value=.3;dfb.gain.value=.3;delay.connect(dfb);dfb.connect(delay);dfb.connect(musicGain);
+    musicOn=true;let step=0;const beat=60/70;
+    function tick(){
+      if(!musicOn||!audioCtx)return;
+      const now=audioCtx.currentTime,chord=CHORDS[step%4];
+      chord.forEach(f=>{
+        const o=audioCtx.createOscillator(),g=audioCtx.createGain();o.type='sine';o.frequency.value=f;
+        g.gain.setValueAtTime(0,now);g.gain.linearRampToValueAtTime(.045,now+.4);g.gain.linearRampToValueAtTime(0,now+beat*3.7);
+        o.connect(g);g.connect(musicGain);o.connect(delay);o.start(now);o.stop(now+beat*4);
+      });
+      const b=audioCtx.createOscillator(),bg=audioCtx.createGain();b.type='triangle';b.frequency.value=chord[0]/2;
+      bg.gain.setValueAtTime(0,now);bg.gain.linearRampToValueAtTime(.06,now+.1);bg.gain.linearRampToValueAtTime(0,now+beat*1.4);
+      b.connect(bg);bg.connect(musicGain);b.start(now);b.stop(now+beat*2);
+      const penta=[220,246.94,293.66,329.63,392,440];
+      for(let i=0;i<2;i++){
+        const t=now+beat*(i*.8+Math.random()*.5),f=penta[Math.floor(Math.random()*penta.length)];
+        const o2=audioCtx.createOscillator(),g2=audioCtx.createGain();o2.type='sine';o2.frequency.value=f;
+        g2.gain.setValueAtTime(0,t);g2.gain.linearRampToValueAtTime(.022,t+.05);g2.gain.linearRampToValueAtTime(0,t+beat*.5);
+        o2.connect(g2);g2.connect(musicGain);o2.start(t);o2.stop(t+beat*.6);
+      }
+      step++;musicSched=setTimeout(tick,beat*4*1000-70);
+    }
+    tick();document.getElementById('toggle-music')?.classList.add('on');
+  }catch(e){musicOn=false;}
+}
+function stopMusic(){
+  musicOn=false;if(musicSched)clearTimeout(musicSched);
+  if(audioCtx){try{audioCtx.close();}catch(e){}audioCtx=null;}
+  document.getElementById('toggle-music')?.classList.remove('on');
+}
+function setMusicVol(v){musicVol=v/100;if(musicGain)musicGain.gain.value=musicVol*.14;document.getElementById('vol-val').textContent=v;}
+
+// ═══════════════════════════════════════════
+//   BUILDINGS
+// ═══════════════════════════════════════════
+const BLD={
+  bakery:     {e:'🥐',n:{de:'Bäckerei',en:'Bakery',ru:'Пекарня'},        cost:400,  income:45},
+  cafe:       {e:'☕',n:{de:'Café',en:'Café',ru:'Кафе'},                   cost:700,  income:75},
+  pharmacy:   {e:'💊',n:{de:'Apotheke',en:'Pharmacy',ru:'Аптека'},          cost:900,  income:95},
+  shop:       {e:'🛍',n:{de:'Geschäft',en:'Shop',ru:'Магазин'},             cost:1200, income:120},
+  restaurant: {e:'🍽',n:{de:'Restaurant',en:'Restaurant',ru:'Ресторан'},    cost:2000, income:200},
+  cinema:     {e:'🎬',n:{de:'Kino',en:'Cinema',ru:'Кинотеатр'},             cost:4000, income:380},
+  hotel:      {e:'🏨',n:{de:'Hotel',en:'Hotel',ru:'Отель'},                 cost:5000, income:500},
+  factory:    {e:'🏭',n:{de:'Fabrik',en:'Factory',ru:'Завод'},              cost:7000, income:680},
+  it_co:      {e:'💻',n:{de:'IT-Firma',en:'IT Company',ru:'IT Компания'},   cost:8500, income:820},
+  bank:       {e:'🏦',n:{de:'Bank',en:'Bank',ru:'Банк'},                    cost:10000,income:1000},
+  casino:     {e:'🎰',n:{de:'Casino',en:'Casino',ru:'Казино'},              cost:15000,income:1500},
+  mall:       {e:'🏬',n:{de:'Einkaufzentrum',en:'Mall',ru:'Молл'},          cost:20000,income:2000},
+  port:       {e:'⚓',n:{de:'Hafen',en:'Port',ru:'Порт'},                   cost:35000,income:3500},
+  tower:      {e:'🏢',n:{de:'Turm',en:'Tower',ru:'Башня'},                  cost:50000,income:5000},
+  airport:    {e:'✈',n:{de:'Flughafen',en:'Airport',ru:'Аэропорт'},         cost:100000,income:10000},
+};
+function bName(k){return (BLD[k]?.n||{})[lang]||BLD[k]?.n?.de||k;}
+const UPGS=[
+  {k:'ads',  e:'📢',n:{de:'Werbung',en:'Advertising',ru:'Реклама'}},
+  {k:'decor',e:'🪑',n:{de:'Interieur',en:'Interior',ru:'Интерьер'}},
+  {k:'staff',e:'👨‍💼',n:{de:'Personal',en:'Staff',ru:'Персонал'}},
+  {k:'auto', e:'🤖',n:{de:'Automatisierung',en:'Automation',ru:'Автоматизация'}},
+];
+function uName(u){return u.n[lang]||u.n.de;}
+const BOT_NAMES=['Viktor Corp','NexGen LLC','AlphaTrade','BauerGroup','MoneyMaker','CityKing'];
+const BOT_COLORS=['#cc1010','#cc5500','#8800cc','#0055cc','#00aa70','#cc0055'];
+const BOT_CLS=['c-bot0','c-bot1','c-bot2','c-bot3','c-bot4','c-bot5'];
+const MAP_INIT={small:6,medium:8,metropolis:10,island:7,industrial:8,random:0};
+const MAP_MAX={small:10,medium:12,metropolis:16,island:10,industrial:12,random:14};
+const WIN_GOAL=10000000;
+const EVENTS=[
+  {e:'📈',t:{de:'Immobilienboom!',en:'Real Estate Boom!',ru:'Бум!'},d:{de:'+60% 8 Tage',en:'+60% 8 days',ru:'+60% 8 дней'},incomeBonus:1.6,dur:8},
+  {e:'📉',t:{de:'Wirtschaftskrise',en:'Economic Crisis',ru:'Кризис'},d:{de:'-40% 10 Tage',en:'-40% 10 days',ru:'-40% 10 дней'},incomeBonus:.6,dur:10},
+  {e:'🌴',t:{de:'Tourismussaison!',en:'Tourist Season!',ru:'Турсезон!'},d:{de:'+80% 5 Tage',en:'+80% 5 days',ru:'+80% 5 дней'},incomeBonus:1.8,dur:5},
+  {e:'🔥',t:{de:'Feuer!',en:'Fire!',ru:'Пожар!'},d:{de:'Gebäude brennt!',en:'Building burns!',ru:'Пожар!'},fire:true},
+  {e:'🛍',t:{de:'Black Friday!',en:'Black Friday!',ru:'Чёрная пятница!'},d:{de:'-50% Gebäude 3T',en:'-50% buildings 3d',ru:'-50% на 3дня'},discount:.5,dur:3},
+  {e:'💰',t:{de:'Stadtförderung!',en:'City Grant!',ru:'Грант!'},d:{de:'$5000 geschenkt',en:'$5000 gift',ru:'$5000 подарок'},moneyBonus:5000},
+  {e:'💎',t:{de:'Milliardär investiert!',en:'Billionaire Invests!',ru:'Инвестиция!'},d:{de:'$15000!',en:'$15000!',ru:'$15000!'},moneyBonus:15000},
+  {e:'💸',t:{de:'Steuerprüfung',en:'Tax Audit',ru:'Налоговая'},d:{de:'-15% Geld',en:'-15% money',ru:'-15% денег'},moneyPenalty:.15},
+  {e:'💥',t:{de:'Konkurrent pleite!',en:'Competitor Bankrupt!',ru:'Банкрот!'},d:{de:'Bot bankrott!',en:'Bot bankrupt!',ru:'Бот разорился!'},botBankrupt:true},
+  {e:'🎲',t:{de:'Lotto!',en:'Lottery!',ru:'Лотерея!'},d:{de:'$10000!',en:'$10000!',ru:'$10000!'},moneyBonus:10000},
+  {e:'⭐',t:{de:'VIP Kunden!',en:'VIP Clients!',ru:'VIP!'},d:{de:'+30% 5T',en:'+30% 5d',ru:'+30% 5д'},incomeBonus:1.3,dur:5,repBonus:20},
+];
+function eT(ev){return ev.e+' '+(ev.t[lang]||ev.t.de);}
+function eD(ev){return ev.d[lang]||ev.d.de;}
+const ACHIEVEMENTS=[
+  {id:'first_buy',e:'🏪',n:{de:'Erster Laden',en:'First Shop',ru:'Первый магазин'},d:{de:'Erstes Gebäude kaufen',en:'Buy first building',ru:'Первая покупка'}},
+  {id:'millionaire',e:'💰',n:{de:'Millionär',en:'Millionaire',ru:'Миллионер'},d:{de:'$1M erreichen',en:'Reach $1M',ru:'Достичь $1M'}},
+  {id:'upgmax',e:'⭐',n:{de:'Vollausbau',en:'Maxed Out',ru:'Макс апгрейд'},d:{de:'Max Upgrade',en:'Max upgrade a building',ru:'Макс улучшение'}},
+  {id:'landlord',e:'🏙',n:{de:'Vermieter',en:'Landlord',ru:'Домовладелец'},d:{de:'10 Gebäude',en:'Own 10 buildings',ru:'10 зданий'}},
+  {id:'tycoon',e:'🏆',n:{de:'Tycoon',en:'Tycoon',ru:'Магнат'},d:{de:'$10M gewinnen',en:'Win with $10M',ru:'Победить с $10M'}},
+  {id:'speedrun',e:'⚡',n:{de:'Speedrunner',en:'Speedrunner',ru:'Спидраннер'},d:{de:'In 200 Tagen gewinnen',en:'Win in 200 days',ru:'Победить за 200 дней'}},
+  {id:'expansion',e:'🗺',n:{de:'Stadtplaner',en:'City Planner',ru:'Планировщик'},d:{de:'Karte 3x expandieren',en:'Expand map 3x',ru:'Расширить 3 раза'}},
+  {id:'daily5',e:'🎰',n:{de:'Glücksspieler',en:'Lucky Spinner',ru:'Везунчик'},d:{de:'5x Wheel',en:'Spin wheel 5 times',ru:'5 прокруток'}},
+];
+function achN(a){return a.n[lang]||a.n.de;}
+function achD(a){return a.d[lang]||a.d.de;}
+
+// ═══════════════════════════════════════════
+//   GAME STATE
+// ═══════════════════════════════════════════
+let G={
+  map:'medium',bots:3,diff:'normal',
+  money:0,income:0,level:1,rep:0,day:1,
+  cells:[],bots_state:[],selId:null,
+  paused:false,speed:1,
+  incomeMult:1,incomeEnd:0,priceDisc:1,discEnd:0,
+  taxRate:.05,totalEarned:0,totalBuildings:0,totalUpgrades:0,totalExpansions:0,
+  currentSize:8,maxSize:12,mapType:'medium',mapFull:false,rentalIncome:0,
+  loans:[],insurance:false,
+  stocks:{tech:{price:100,shares:0},re:{price:80,shares:0},en:{price:60,shares:0}},
+  _gi:null,_ei:null,_ai:null,_hdi:null,_sti:null,
+};
+let SET={sfx:true,agent:true,autosave:true};
+let spinCount=0,wheelAngle=0,spinning=false;
+
+// ═══════════════════════════════════════════
+//   SCREENS / MODALS
+// ═══════════════════════════════════════════
+function showScreen(name){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.getElementById('screen-'+name)?.classList.add('active');
+  const bg=document.getElementById('bg-wrap').innerHTML;
+  ['bg2','bg3','bg4','bg5','bg6'].forEach(id=>{const t=document.getElementById(id);if(t)t.innerHTML=bg;});
+}
+function openModal(id){
+  if(id==='modal-lb')renderLB();
+  if(id==='modal-profile')renderProfile();
+  if(id==='modal-saves')renderSaves();
+  if(id==='modal-finance')renderFinance();
+  if(id==='modal-ach')renderAch();
+  document.getElementById(id)?.classList.add('open');
+}
+function closeModal(id){document.getElementById(id)?.classList.remove('open','show');}
+function showComing(){openModal('modal-coming');}
+
+// ═══════════════════════════════════════════
+//   MENU ANIMATION
+// ═══════════════════════════════════════════
+function initMenuAnim(){
+  const sl=document.getElementById('star-layer');if(!sl)return;
+  for(let i=0;i<90;i++){
+    const s=document.createElement('div'),sz=Math.random()*2.5+.3;
+    s.className='star';s.style.cssText=`left:${Math.random()*100}%;top:${Math.random()*80}%;width:${sz}px;height:${sz}px;--d:${2+Math.random()*4}s;--del:-${Math.random()*4}s`;
+    sl.appendChild(s);
+  }
+  const cl=document.getElementById('coin-layer');if(!cl)return;
+  '💰💵⭐🏦📈💎🏢🎰'.split('').forEach(em=>{
+    const c=document.createElement('div');c.className='coin';c.textContent=em;
+    c.style.cssText=`left:${5+Math.random()*90}%;bottom:50px;--d:${3+Math.random()*5}s;--del:-${Math.random()*5}s;--dx:${-40+Math.random()*80}px`;
+    cl.appendChild(c);
+  });
+}
+
+// ═══════════════════════════════════════════
+//   SELECTIONS
+// ═══════════════════════════════════════════
+function selMode(m){G.mode=m;['card-bot'].forEach(id=>document.getElementById(id)?.classList.remove('sel'));document.getElementById('card-'+m)?.classList.add('sel');}
+function selMap(m){G.map=m;['small','medium','metropolis','island','industrial','random'].forEach(x=>document.getElementById('map-'+x)?.classList.remove('sel'));document.getElementById('map-'+m)?.classList.add('sel');}
+function selBots(n){G.bots=n;[1,3,5,7].forEach(x=>document.getElementById('bots-'+x)?.classList.remove('sel'));document.getElementById('bots-'+n)?.classList.add('sel');}
+function selDiff(d){G.diff=d;['easy','normal','hard','extreme'].forEach(x=>document.getElementById('diff-'+x)?.classList.remove('sel'));document.getElementById('diff-'+d)?.classList.add('sel');}
+
+// ═══════════════════════════════════════════
+//   MAP GENERATION
+// ═══════════════════════════════════════════
+function genMap(size,mt,existing=null){
+  const cells=[],ex={};if(existing)existing.forEach(c=>{ex[c.id]=c;});
+  const dts=['normal','normal','rich','tourist','poor','industrial'];
+  for(let y=0;y<size;y++)for(let x=0;x<size;x++){
+    const id=`${x}-${y}`;if(ex[id]){cells.push(ex[id]);continue;}
+    let type='empty',building=null;
+    if(mt==='island'){const cx=x-size/2+.5,cy=y-size/2+.5;if(Math.sqrt(cx*cx+cy*cy)>size/2-.85||Math.random()<.04)type='water';}
+    if(type==='empty'&&Math.random()<.07){type='neutral';building='bakery';}
+    const di=Math.floor(x/(size/3))+Math.floor(y/(size/3))*3;
+    const dt=dts[di%dts.length];
+    const pm={normal:1,rich:1.8,poor:.65,tourist:1.35,industrial:.95}[dt]||1;
+    const im={normal:1,rich:1.5,poor:.7,tourist:1.8,industrial:1.25}[dt]||1;
+    cells.push({x,y,id,type,owner:'none',building,upgrades:{},upgradeLevel:0,dt,pm,im,dist:Math.floor(x/(size/2))*2+Math.floor(y/(size/2)),isNew:!!existing,damaged:false});
+  }
+  return cells;
+}
+
+// ═══════════════════════════════════════════
+//   START GAME
+// ═══════════════════════════════════════════
+function startGame(){
+  clearG();document.getElementById('win-overlay').classList.remove('show');
+  const SM={easy:15000,normal:5000,hard:2000,extreme:500};
+  const BM={easy:2500,normal:5000,hard:9000,extreme:13000};
+  const BA={easy:.2,normal:.42,hard:.62,extreme:.82};
+  const TR={easy:.03,normal:.05,hard:.08,extreme:.12};
+  let mk=G.map;
+  if(mk==='random'){const a=['small','medium','metropolis','island','industrial'];mk=a[Math.floor(Math.random()*a.length)];}
+  G.mapType=mk;G.currentSize=MAP_INIT[mk]||8;G.maxSize=MAP_MAX[mk]||12;
+  G.money=SM[G.diff];G.income=0;G.level=1;G.rep=0;G.day=1;
+  G.incomeMult=1;G.incomeEnd=0;G.priceDisc=1;G.discEnd=0;G.taxRate=TR[G.diff];
+  G.totalEarned=0;G.totalBuildings=0;G.totalUpgrades=0;G.totalExpansions=0;
+  G.loans=[];G.insurance=false;G.mapFull=false;G.rentalIncome=0;
+  G.stocks={tech:{price:100,shares:0},re:{price:80,shares:0},en:{price:60,shares:0}};
+  G.selId=null;G.paused=false;G.speed=1;
+  G.cells=genMap(G.currentSize,mk);
+  G.bots_state=[];
+  const nb=Math.min(G.bots,BOT_NAMES.length);
+  for(let i=0;i<nb;i++)G.bots_state.push({id:i,name:BOT_NAMES[i],money:BM[G.diff],income:0,color:BOT_COLORS[i],cls:BOT_CLS[i],agg:BA[G.diff],buildings:0,bankrupt:false});
+  showScreen('game');
+  renderMap();renderComps();updateHUD();buildLeg();updateProg();
+  G._gi=setInterval(gameTick,1000/G.speed);
+  G._ei=setInterval(trigEvent,32000);
+  G._ai=setInterval(agentTip,28000);
+  G._hdi=setInterval(hotDeal,55000);
+  G._sti=setInterval(updateStocks,7000);
+  addAgent(T('p-welcome'));
+  updateProfile({games:(userData.games||0)+1});
+}
+
+// ═══════════════════════════════════════════
+//   GAME TICK
+// ═══════════════════════════════════════════
+function gameTick(){
+  if(G.paused)return;
+  G.day++;
+  let inc=G.rentalIncome;
+  G.cells.forEach(c=>{
+    if(c.owner==='player'&&c.building&&!c.damaged){
+      const b=BLD[c.building];if(!b)return;
+      inc+=Math.floor(b.income*(1+(c.upgradeLevel||0)*.3)*c.im*G.incomeMult);
+    }
+  });
+  Object.values(G.stocks).forEach(s=>{if(s.shares>0)inc+=Math.floor(s.shares*s.price*.005);});
+  G.income=inc;G.money+=inc;G.totalEarned+=inc;
+  if(G.day%30===0){
+    const ownedB=G.cells.filter(c=>c.owner==='player'&&c.building).length;
+    const tax=Math.floor(ownedB*400*G.taxRate);
+    if(tax>0){G.money=Math.max(0,G.money-tax);addAgent(`💸 ${lang==='ru'?'Налог':lang==='en'?'Tax':'Steuer'}: -$${tax.toLocaleString()}`);}
+    G.loans.forEach(l=>{G.money=Math.max(0,G.money-Math.floor(l.amount*.015));});
+    if(SET.autosave)gameSave(99);
+  }
+  G.loans=G.loans.filter(l=>{l.dl--;if(l.dl<=0){G.money=Math.max(0,G.money-l.amount);addAgent(T('loan-paid'));return false;}return true;});
+  if(G.incomeEnd&&G.day>G.incomeEnd){G.incomeMult=1;G.incomeEnd=0;}
+  if(G.discEnd&&G.day>G.discEnd){G.priceDisc=1;G.discEnd=0;}
+  G.bots_state.forEach(bot=>{
+    if(bot.bankrupt)return;
+    let bi=0;G.cells.forEach(c=>{if(c.owner==='bot'+bot.id&&c.building){const b=BLD[c.building];if(b)bi+=Math.floor(b.income*c.im);}});
+    bot.income=bi;bot.money+=Math.floor(bi*G.incomeMult*.9);
+    if(Math.random()<bot.agg*.3)botBuy(bot);
+    if(Math.random()<.05)botUpgrade(bot);
+    if(bot.money<-3000&&bot.buildings<2&&Math.random()<.1)botBankrupt(bot);
+  });
+  checkLevel();checkExpansion();
+  updateHUD();renderComps();
+  if(G.day%8===0)rotateTicker();
+  if(G.money>=WIN_GOAL)winGame();
+  checkAchievements();
+}
+function checkLevel(){
+  const t=[0,2e3,5e3,1e4,25e3,5e4,1e5,25e4,5e5,1e6];
+  let nl=1;for(let i=t.length-1;i>=0;i--){if(G.totalEarned>=t[i]){nl=i+1;break;}}
+  if(nl>G.level){G.level=nl;addAgent(`🎉 Level ${G.level}!`);showPop({t:'⬆ Level '+G.level,d:'Growing!'});}
+}
+function checkAchievements(){
+  if(G.totalBuildings>=1)checkAch('first_buy');
+  if(G.money>=1000000)checkAch('millionaire');
+  if(G.cells.some(c=>c.owner==='player'&&(c.upgradeLevel||0)>=4))checkAch('upgmax');
+  if(G.cells.filter(c=>c.owner==='player').length>=10)checkAch('landlord');
+  if(G.totalExpansions>=3)checkAch('expansion');
+}
+function checkAch(id){
+  const done=userData.achDone||[];
+  if(done.includes(id))return;
+  done.push(id);userData.achDone=done;
+  updateProfile({achDone:done});
+  const a=ACHIEVEMENTS.find(x=>x.id===id);
+  if(a)showPop({t:'🏅 '+achN(a),d:achD(a)});
+}
+function renderAch(){
+  const g=document.getElementById('ach-grid');g.innerHTML='';
+  const done=userData.achDone||[];
+  ACHIEVEMENTS.forEach(a=>{
+    const ok=done.includes(a.id);
+    const d=document.createElement('div');d.className='ach-item'+(ok?' done':'');
+    d.innerHTML=`<div style="font-size:22px">${a.e}</div><div><div style="font-size:10px;font-weight:700;color:${ok?'var(--gold)':'var(--text)'}">${achN(a)}</div><div style="font-size:8px;color:var(--muted)">${achD(a)}</div></div><div style="margin-left:auto;font-size:14px">${ok?'✅':'🔒'}</div>`;
+    g.appendChild(d);
+  });
+}
+
+// ═══════════════════════════════════════════
+//   BOT AI
+// ═══════════════════════════════════════════
+function botBuy(bot){
+  const empty=G.cells.filter(c=>c.type==='empty'&&c.owner==='none');if(!empty.length)return;
+  let target=empty[Math.floor(Math.random()*empty.length)];
+  if(G.diff!=='easy'){
+    const rich=empty.filter(c=>c.dt==='rich'||c.dt==='tourist');
+    if(rich.length&&Math.random()<.5)target=rich[Math.floor(Math.random()*rich.length)];
+    if((G.diff==='hard'||G.diff==='extreme')&&Math.random()<.4){
+      const pc=G.cells.filter(c=>c.owner==='player');
+      if(pc.length){const p=pc[Math.floor(Math.random()*pc.length)];const nb=empty.filter(c=>Math.abs(c.x-p.x)<=2&&Math.abs(c.y-p.y)<=2);if(nb.length)target=nb[Math.floor(Math.random()*nb.length)];}
+    }
+  }
+  const aff=Object.keys(BLD).filter(k=>Math.floor(BLD[k].cost*target.pm)<=bot.money*.75).sort((a,b)=>BLD[b].income-BLD[a].income);
+  if(!aff.length)return;
+  const k=aff[0];const cost=Math.floor(BLD[k].cost*target.pm);if(bot.money<cost)return;
+  bot.money-=cost;bot.buildings++;
+  target.owner='bot'+bot.id;target.type='owned';target.building=k;target.upgrades={};target.upgradeLevel=0;target.isNew=false;
+  const el=document.getElementById('cell-'+target.id);if(el)updCell(el,target);
+}
+function botUpgrade(bot){
+  const bc=G.cells.filter(c=>c.owner==='bot'+bot.id&&c.building&&(c.upgradeLevel||0)<4);if(!bc.length)return;
+  const cell=bc[Math.floor(Math.random()*bc.length)];const b=BLD[cell.building];if(!b)return;
+  const cost=Math.floor(b.cost*.3*(cell.upgradeLevel+1));if(bot.money<cost)return;
+  const av=UPGS.map(u=>u.k).filter(k=>!cell.upgrades[k]);if(!av.length)return;
+  bot.money-=cost;cell.upgrades[av[0]]=true;cell.upgradeLevel=(cell.upgradeLevel||0)+1;
+  const el=document.getElementById('cell-'+cell.id);if(el)updCell(el,cell);
+}
+function botBankrupt(bot){
+  bot.bankrupt=true;
+  G.cells.filter(c=>c.owner==='bot'+bot.id).forEach(c=>{c.owner='none';c.type='empty';c.building=null;c.upgrades={};c.upgradeLevel=0;const el=document.getElementById('cell-'+c.id);if(el)updCell(el,c);});
+  const msg=T('bankrupt').replace('NAME',bot.name);showPop({t:'💥 '+bot.name,d:msg});addAgent(msg);renderComps();
+}
+
+// ═══════════════════════════════════════════
+//   EXPANSION
+// ═══════════════════════════════════════════
+function checkExpansion(){
+  const total=G.cells.filter(c=>c.type!=='water').length;
+  const occ=G.cells.filter(c=>c.owner!=='none'||c.type==='neutral').length;
+  const pct=total>0?occ/total:0;
+  document.getElementById('prog-exp').style.width=Math.min(pct*100,100)+'%';
+  if(pct>=.80){
+    if(G.currentSize<G.maxSize)expandMap();
+    else if(!G.mapFull){G.mapFull=true;G.rentalIncome=Math.floor(G.income*.15);addAgent(T('map-full'));showAnn(T('map-full'),'background:rgba(0,50,130,.95);border:2px solid var(--cyan)');}
+  }
+}
+function expandMap(){
+  const ns=Math.min(G.currentSize+2,G.maxSize);if(ns===G.currentSize)return;
+  G.currentSize=ns;G.totalExpansions++;G.cells=genMap(ns,G.mapType,G.cells);
+  G.bots_state.forEach(b=>{if(!b.bankrupt)b.money+=Math.floor(b.income*5);});
+  renderMap();updateProg();
+  const msg=T('new-dist').replace('SIZE',ns);
+  showAnn(msg,'background:rgba(0,60,20,.95);border:2px solid var(--green)');addAgent(msg);sfx('expand');
+  checkAch('expansion');
+}
+function updateProg(){document.getElementById('prog-win').style.width=Math.min((G.money/WIN_GOAL)*100,100)+'%';}
+function updateStocks(){const v={tech:.15,re:.1,en:.2};Object.keys(G.stocks).forEach(k=>{const ch=(Math.random()*2-1)*(v[k]||.12);G.stocks[k].price=Math.max(10,Math.floor(G.stocks[k].price*(1+ch)));});}
+
+// ═══════════════════════════════════════════
+//   RENDER MAP
+// ═══════════════════════════════════════════
+function renderMap(){
+  const map=document.getElementById('cmap');const sz=G.currentSize;
+  const csz={6:90,7:78,8:66,9:58,10:52,11:46,12:41,13:37,14:34,15:31,16:29}[sz]||50;
+  map.style.gridTemplateColumns=`repeat(${sz},${csz}px)`;map.innerHTML='';
+  G.cells.forEach(cell=>{
+    const el=document.createElement('div');el.className='cell';el.id='cell-'+cell.id;
+    el.style.width=csz+'px';el.style.height=csz+'px';
+    if(cell.isNew)el.classList.add('nc');
+    updCell(el,cell);el.addEventListener('click',()=>cellClick(cell));map.appendChild(el);
+  });
+}
+function updCell(el,cell){
+  const wasNew=el.classList.contains('nc'),wasSel=el.classList.contains('sel');
+  el.className='cell';if(wasNew)el.classList.add('nc');if(wasSel||cell.id===G.selId)el.classList.add('sel');
+  if(cell.type==='water'){el.classList.add('water');el.innerHTML='<span style="font-size:18px">🌊</span>';return;}
+  if(cell.owner==='player')el.classList.add('c-player');
+  else if(cell.owner.startsWith('bot')){const bi=parseInt(cell.owner.replace('bot',''));el.classList.add(BOT_CLS[isNaN(bi)?0:bi]||'c-bot0');}
+  else if(cell.type==='neutral')el.classList.add('c-neutral');
+  else if(cell.isNew)el.classList.add('c-nd');
+  else el.classList.add('c-empty');
+  if(cell.dt==='rich')el.classList.add('dt-rich');
+  else if(cell.dt==='tourist')el.classList.add('dt-tourist');
+  else if(cell.dt==='poor')el.classList.add('dt-poor');
+  if(cell.damaged)el.style.outline='2px solid var(--red)';else el.style.outline='';
+  el.innerHTML='';
+  if(cell.building&&BLD[cell.building]){
+    const b=BLD[cell.building];
+    const ico=document.createElement('span');ico.style.fontSize=G.currentSize<=8?'20px':'15px';ico.textContent=b.e;el.appendChild(ico);
+    if((cell.upgradeLevel||0)>0){const ub=document.createElement('div');ub.className='ubadge';ub.textContent='★'+(cell.upgradeLevel||0);el.appendChild(ub);}
+    const lbl=document.createElement('div');lbl.className='clbl';lbl.textContent=bName(cell.building).substring(0,5);el.appendChild(lbl);
+  }else{
+    const p=document.createElement('span');p.style.cssText='font-size:12px;color:rgba(255,255,255,.12)';p.textContent='+';el.appendChild(p);
+  }
+}
+
+// ═══════════════════════════════════════════
+//   CELL CLICK / PANEL
+// ═══════════════════════════════════════════
+function cellClick(cell){
+  if(cell.type==='water')return;
+  if(G.selId){document.getElementById('cell-'+G.selId)?.classList.remove('sel');}
+  G.selId=cell.id;document.getElementById('cell-'+cell.id)?.classList.add('sel');
+  showCellPanel(cell);
+}
+function showCellPanel(cell){
+  const panel=document.getElementById('cell-panel');
+  panel.innerHTML=`<div class="ptitle">${T('p-sel')}</div>`;
+  if(cell.owner==='player'&&cell.building){
+    const b=BLD[cell.building],lvl=cell.upgradeLevel||0;
+    const realInc=Math.floor(b.income*(1+lvl*.3)*cell.im);
+    const sellPrice=Math.floor(b.cost*.6);
+    const upgCost=Math.floor(b.cost*.3*(lvl+1)*(cell.pm||1));
+    const repCost=Math.floor(b.cost*.2);
+    let html=`<div style="text-align:center;padding:4px 0">
+      <div style="font-size:40px">${b.e}</div>
+      <div style="font-size:13px;font-weight:800;color:var(--gold);margin-bottom:2px">${bName(cell.building)}</div>
+      <div style="font-size:10px;margin-bottom:7px;color:var(--green)">${T('yours')} · ★${lvl}${cell.damaged?' 🔥':''}</div>
+      <div class="bstats">
+        <div class="bst"><div class="bstv">$${realInc}</div><div class="bstl">${T('income')}</div></div>
+        <div class="bst"><div class="bstv">${Math.round(b.cost/b.income)}d</div><div class="bstl">${T('roi')}</div></div>
+        <div class="bst"><div class="bstv">${cell.dt||'?'}</div><div class="bstl">${T('dist')}</div></div>
+        <div class="bst"><div class="bstv">${lvl}/4</div><div class="bstl">★</div></div>
+      </div></div>`;
+    if(cell.damaged)html+=`<div class="dmg-overlay">🔥 ${lang==='de'?'Beschädigt':lang==='en'?'Damaged':'Повреждено'}<br><button onclick="repairB('${cell.id}')" style="margin-top:5px;padding:4px 12px;border-radius:6px;border:1px solid var(--red);background:rgba(255,75,75,.18);color:var(--red);cursor:pointer;font-family:'Exo 2',sans-serif;font-size:10px;font-weight:700">🔧 $${repCost.toLocaleString()}</button></div>`;
+    if(lvl>=4)html+=`<div style="background:rgba(0,230,118,.06);border:1px solid rgba(0,230,118,.22);border-radius:7px;padding:8px;text-align:center;font-size:10px;color:var(--green);margin-top:5px">${T('max-level')}</div>`;
+    html+=`<div id="upg-slot"></div><button class="sell-btn" onclick="sellB('${cell.id}')">🏷 ${T('sell')} ($${sellPrice.toLocaleString()})</button>`;
+    panel.innerHTML+=html;
+    if(lvl<4){
+      const slot=document.getElementById('upg-slot');if(!slot)return;
+      const hdr=document.createElement('div');hdr.className='ptitle';hdr.style.marginTop='8px';
+      hdr.textContent=T('upgrade')+' (+30%)';slot.appendChild(hdr);
+      UPGS.forEach(up=>{
+        const done=!!(cell.upgrades&&cell.upgrades[up.k]);
+        const can=G.money>=upgCost;
+        const btn=document.createElement('button');btn.className='ubtn';
+        if(done){
+          btn.disabled=true;
+          btn.innerHTML=`<div><div style="font-size:11px;font-weight:700;color:var(--green)">${up.e} ${uName(up)} ✓</div><div style="font-size:8px;color:var(--muted)">${T('done')}</div></div><span style="color:var(--green);font-size:13px">✓</span>`;
+        }else{
+          btn.innerHTML=`<div><div style="font-size:11px;font-weight:700;color:var(--purple)">${up.e} ${uName(up)}</div><div style="font-size:8px;color:var(--muted)">+30%</div></div><span style="font-family:'Orbitron',sans-serif;font-size:9px;color:${can?'var(--gold)':'var(--muted)'};margin-left:8px;flex-shrink:0">$${upgCost.toLocaleString()}</span>`;
+          btn.style.opacity=can?'1':'.36';
+          const cid=cell.id,upk=up.k,uc=upgCost;
+          btn.addEventListener('click',()=>{
+            const fc=G.cells.find(c=>c.id===cid);if(!fc||fc.owner!=='player'||!fc.building)return;
+            if(fc.upgrades&&fc.upgrades[upk])return;
+            if(G.money<uc){addAgent(T('no-funds'));sfx('fail');return;}
+            G.money-=uc;if(!fc.upgrades)fc.upgrades={};
+            fc.upgrades[upk]=true;fc.upgradeLevel=(fc.upgradeLevel||0)+1;
+            G.rep+=5;G.totalUpgrades++;
+            updateProfile({upgrades:(userData.upgrades||0)+1});
+            const mel=document.getElementById('cell-'+cid);if(mel)updCell(mel,fc);
+            showCellPanel(fc);updateHUD();sfx('upgrade');
+            addAgent(`⬆ +30% — ★${fc.upgradeLevel}`);checkAch('upgmax');
+          });
+        }
+        slot.appendChild(btn);
+      });
+    }
+  }
+  else if(cell.owner.startsWith('bot')){
+    const bi=parseInt(cell.owner.replace('bot',''));
+    const bot=G.bots_state[bi];const b=cell.building?BLD[cell.building]:null;
+    panel.innerHTML+=`<div style="text-align:center;padding:6px 0"><div style="font-size:38px">${b?b.e:'🏢'}</div><div style="font-size:12px;font-weight:800;color:${BOT_COLORS[bi]||'#aaa'}">${b?bName(cell.building):'?'}</div><div style="font-size:10px;color:${BOT_COLORS[bi]||'#aaa'};margin-bottom:8px">👿 ${bot?.name||'Bot'}</div><div style="background:rgba(255,75,75,.05);border:1px solid rgba(255,75,75,.14);border-radius:7px;padding:8px;font-size:10px;color:var(--muted)">${T('enemy')}</div></div>`;
+  }
+  else if(cell.type==='neutral'){
+    panel.innerHTML+=`<div style="text-align:center;padding:8px 0"><div style="font-size:38px">🏛</div><div style="font-size:12px;color:var(--muted)">${T('city-bld')}</div></div>`;
+  }
+  else{
+    const dp={rich:'💰 ',tourist:'🌴 ',poor:'⬇ ',industrial:'🏭 ',normal:''}[cell.dt]||'';
+    panel.innerHTML+=`<div style="text-align:center;padding:4px 0">
+      <div style="font-size:34px;color:${cell.isNew?'var(--green)':'var(--muted)'}">${cell.isNew?'🆕':'🏗'}</div>
+      <div style="font-size:12px;font-weight:800;color:${cell.isNew?'var(--green)':'var(--cyan)'};margin-bottom:2px">${cell.isNew?T('new-plot'):T('free-plot')}</div>
+      <div style="font-size:9px;color:var(--muted);margin-bottom:8px">${dp}${cell.dt} · D${cell.dist+1} · ×${cell.pm.toFixed(1)} 📈×${cell.im.toFixed(1)}</div></div>
+    <div class="ptitle">${T('buy')}</div><div class="buy-list" id="buy-list"></div>`;
+    const bl=document.getElementById('buy-list');if(!bl)return;
+    Object.entries(BLD).forEach(([k,b])=>{
+      const rc=Math.floor(b.cost*(cell.pm||1)*G.priceDisc);const can=G.money>=rc;
+      const btn=document.createElement('button');btn.className='bbtn';btn.disabled=!can;
+      btn.innerHTML=`<span class="bi2">${b.e}</span><div class="bd"><div class="bn2">${bName(k)}</div><div class="bp">$${rc.toLocaleString()}</div><div class="bin">+$${Math.floor(b.income*(cell.im||1))}/d</div></div>`;
+      btn.addEventListener('click',()=>buyB(cell,k));bl.appendChild(btn);
+    });
+  }
+}
+
+// ═══════════════════════════════════════════
+//   BUY / SELL / REPAIR
+// ═══════════════════════════════════════════
+function buyB(cell,k){
+  const b=BLD[k];const cost=Math.floor(b.cost*(cell.pm||1)*G.priceDisc);
+  if(G.money<cost){addAgent(T('no-funds'));sfx('fail');return;}
+  G.money-=cost;G.totalBuildings++;cell.owner='player';cell.type='owned';cell.building=k;
+  cell.upgrades={};cell.upgradeLevel=0;cell.isNew=false;cell.damaged=false;
+  G.rep+=Math.floor(b.cost/600);
+  updateProfile({buildings:(userData.buildings||0)+1});
+  const el=document.getElementById('cell-'+cell.id);if(el)updCell(el,cell);
+  showCellPanel(cell);updateHUD();sfx('buy');checkExpansion();checkAch('first_buy');
+  addAgent(`✅ ${bName(k)} +$${Math.floor(b.income*(cell.im||1))}/d`);
+}
+function sellB(cid){
+  const cell=G.cells.find(c=>c.id===cid);if(!cell||cell.owner!=='player'||!cell.building)return;
+  const sp=Math.floor(BLD[cell.building].cost*.6);
+  if(!confirm(`${lang==='de'?'Verkaufen für':lang==='en'?'Sell for':'Продать за'} $${sp.toLocaleString()}?`))return;
+  G.money+=sp;cell.owner='none';cell.type='empty';cell.building=null;cell.upgrades={};cell.upgradeLevel=0;cell.damaged=false;
+  G.selId=null;const el=document.getElementById('cell-'+cid);if(el)updCell(el,cell);
+  document.getElementById('cell-panel').innerHTML=`<div class="ptitle">${T('p-sel')}</div><div style="text-align:center;padding:18px 0;color:var(--muted);font-size:11px">${T('p-click')}</div>`;
+  updateHUD();addAgent(`🏷 +$${sp.toLocaleString()}`);
+}
+function repairB(cid){
+  const cell=G.cells.find(c=>c.id===cid);if(!cell||!cell.damaged)return;
+  const cost=Math.floor((BLD[cell.building]?.cost||1000)*.2);
+  if(G.money<cost){addAgent(T('no-funds'));return;}
+  G.money-=cost;cell.damaged=false;const el=document.getElementById('cell-'+cid);if(el)updCell(el,cell);
+  showCellPanel(cell);updateHUD();addAgent(T('repaired'));
+}
+
+// ═══════════════════════════════════════════
+//   HUD
+// ═══════════════════════════════════════════
+function updateHUD(){
+  document.getElementById('h-money').textContent='$'+G.money.toLocaleString();
+  document.getElementById('h-income').textContent='+$'+G.income.toLocaleString();
+  const debt=G.loans.reduce((s,l)=>s+l.amount,0);
+  document.getElementById('h-debt').textContent=debt>0?'-$'+debt.toLocaleString():'$0';
+  document.getElementById('h-level').textContent=G.level;
+  document.getElementById('h-rep').textContent=G.rep+'⭐';
+  document.getElementById('h-bld').textContent=G.cells.filter(c=>c.owner==='player').length;
+  document.getElementById('h-tax').textContent=Math.round(G.taxRate*100)+'%';
+  document.getElementById('h-day').textContent=T('day')+' '+G.day;
+  updateProg();
+}
+function renderComps(){
+  const list=document.getElementById('clist');list.innerHTML='';
+  const myB=G.cells.filter(c=>c.owner==='player').length;
+  const pr=document.createElement('div');pr.className='citem myrow';
+  pr.innerHTML=`<div class="cdot" style="background:var(--green)"></div><div style="flex:1;min-width:0"><div class="cname">${userData.avatar||'🏢'} ${currentUser||'Me'}</div><div class="cstat">${myB} · +$${fmt(G.income)}</div></div><div class="cmoney">$${fmt(G.money)}</div>`;
+  list.appendChild(pr);
+  [...G.bots_state].sort((a,b)=>b.money-a.money).forEach(bot=>{
+    const row=document.createElement('div');row.className='citem'+(bot.bankrupt?' bkrpt':'');
+    row.innerHTML=`<div class="cdot" style="background:${bot.color}"></div><div style="flex:1;min-width:0"><div class="cname">${bot.name}${bot.bankrupt?' 💥':''}</div><div class="cstat">${bot.buildings}b</div></div><div class="cmoney">$${fmt(bot.money)}</div>`;
+    list.appendChild(row);
+  });
+}
+function buildLeg(){
+  const lb=document.getElementById('l-bots');lb.innerHTML='';
+  const dc=['#aa0000','#aa5500','#6600aa','#0055aa','#00aa70','#aa0055'];
+  G.bots_state.slice(0,4).forEach((bot,i)=>{lb.innerHTML+=`<div class="litem"><div class="ldot" style="background:${dc[i]||dc[0]}"></div>${bot.name.substring(0,11)}</div>`;});
+}
+function fmt(n){if(!n||isNaN(n))return'0';if(n>=1e6)return(n/1e6).toFixed(1)+'M';if(n>=1e3)return(n/1e3).toFixed(1)+'K';return Math.floor(n).toLocaleString();}
+
+// ═══════════════════════════════════════════
+//   EVENTS & AGENT
+// ═══════════════════════════════════════════
+function trigEvent(){
+  if(G.paused)return;
+  const ev=EVENTS[Math.floor(Math.random()*EVENTS.length)];
+  showPop({t:eT(ev),d:eD(ev)});addAgent(`📡 ${eT(ev)} — ${eD(ev)}`);rotateTicker(eT(ev)+': '+eD(ev));
+  if(ev.moneyBonus)G.money+=ev.moneyBonus;
+  if(ev.moneyPenalty)G.money=Math.floor(G.money*(1-ev.moneyPenalty));
+  if(ev.repBonus)G.rep+=ev.repBonus;
+  if(ev.incomeBonus&&ev.dur){G.incomeMult=ev.incomeBonus;G.incomeEnd=G.day+ev.dur;}
+  if(ev.discount&&ev.dur){G.priceDisc=ev.discount;G.discEnd=G.day+ev.dur;}
+  if(ev.fire){
+    const pb=G.cells.filter(c=>c.owner==='player'&&c.building&&!c.damaged);
+    if(pb.length){const t=pb[Math.floor(Math.random()*pb.length)];
+      if(G.insurance){addAgent(T('fire-ins'));}
+      else if(Math.random()<.35){t.building=null;t.owner='none';t.type='empty';t.upgrades={};t.upgradeLevel=0;G.money=Math.max(0,G.money-1000);addAgent(T('fire-destroy'));renderMap();}
+      else{t.damaged=true;G.money=Math.max(0,G.money-3000);addAgent(T('fire-hit'));const el=document.getElementById('cell-'+t.id);if(el)updCell(el,t);}
+    }
+  }
+  if(ev.botBankrupt){const alive=G.bots_state.filter(b=>!b.bankrupt);if(alive.length)botBankrupt(alive[Math.floor(Math.random()*alive.length)]);}
+  updateHUD();
+}
+function hotDeal(){
+  if(G.paused)return;
+  const keys=Object.keys(BLD);const k=keys[Math.floor(Math.random()*keys.length)];const b=BLD[k];
+  const disc=.35+Math.random()*.3;const sp=Math.floor(b.cost*disc);let tl=30;
+  document.querySelector('.hotdeal')?.remove();
+  const d=document.createElement('div');d.className='hotdeal';
+  d.innerHTML=`<div style="font-size:8px;font-weight:700;color:var(--red);letter-spacing:1.5px">🔥 HOT DEAL</div>
+    <div style="font-size:12px;font-weight:800;margin:3px 0">${b.e} ${bName(k)}</div>
+    <div style="font-size:9px;color:var(--muted)"><s>$${b.cost.toLocaleString()}</s> → <span style="color:var(--green);font-weight:700">$${sp.toLocaleString()}</span> -${Math.round((1-disc)*100)}%</div>
+    <div class="htimer" id="hd-t">${tl}s</div>
+    <button class="hdbuy" id="hd-b">$${sp.toLocaleString()} ${lang==='ru'?'Купить':lang==='en'?'Buy':'Kaufen'}</button>`;
+  const empty=G.cells.find(c=>c.type==='empty'&&c.owner==='none');
+  document.body.appendChild(d);addAgent(`🔥 Deal: ${b.e}${bName(k)} -${Math.round((1-disc)*100)}%!`);
+  const timer=setInterval(()=>{tl--;const te=document.getElementById('hd-t');if(te)te.textContent=tl+'s';if(tl<=0){clearInterval(timer);d.remove();}},1000);
+  document.getElementById('hd-b').addEventListener('click',()=>{
+    clearInterval(timer);d.remove();
+    if(!empty){return;}if(G.money<sp){addAgent(T('no-funds'));return;}
+    buyB(empty,k);const refund=Math.floor(BLD[k].cost*(empty.pm||1))-sp;G.money+=Math.max(0,refund);updateHUD();
+  });
+}
+function showPop(ev){
+  document.querySelector('.evpop')?.remove();
+  const el=document.createElement('div');el.className='evpop';
+  el.innerHTML=`<div class="ep-t">${ev.t}</div><div class="ep-d">${ev.d}</div>`;
+  document.body.appendChild(el);setTimeout(()=>el.remove(),5000);
+}
+function showAnn(msg,style){
+  document.querySelector('.bigann')?.remove();
+  const el=document.createElement('div');el.className='bigann';el.style.cssText=style;
+  el.innerHTML=`<h2>${msg}</h2>`;document.body.appendChild(el);setTimeout(()=>el.remove(),4500);
+}
+function addAgent(txt){
+  if(!SET.agent)return;
+  const box=document.getElementById('agentbox');if(!box)return;
+  const el=document.createElement('div');el.className='amsg';
+  el.innerHTML=`<div class="at">${T('day')} ${G.day}</div>${txt}`;
+  box.insertBefore(el,box.firstChild);while(box.children.length>7)box.removeChild(box.lastChild);
+}
+const TIPS=['tip1','tip2','tip3','tip4','tip5'];let tipIdx=0;
+function agentTip(){if(!SET.agent||G.paused)return;addAgent(T(TIPS[tipIdx++%TIPS.length]));}
+const TICKERS=[
+  ()=>`${T('day')} ${G.day} · $${fmt(G.money)} / $${fmt(WIN_GOAL)} (${Math.round(G.money/WIN_GOAL*100)}%)`,
+  ()=>`${G.bots_state.filter(b=>!b.bankrupt)[0]?.name||'Bot'} ${lang==='de'?'expandiert!':lang==='en'?'expands!':'расширяется!'}`,
+  ()=>lang==='de'?'Reiche Viertel = ×1.8 Einnahmen!':lang==='en'?'Rich districts = ×1.8!':'Богатые районы = ×1.8!',
+  ()=>lang==='de'?'Karte expandiert bei 80%!':lang==='en'?'Map expands at 80%!':'Карта при 80%!',
+];
+let tIdx=0;
+function rotateTicker(custom){const el=document.getElementById('ticker-msg');if(!el)return;const msg=custom||(TICKERS[tIdx++%TICKERS.length]());el.textContent=msg+'     '.repeat(4)+msg;}
+
+// ═══════════════════════════════════════════
+//   CONTROLS
+// ═══════════════════════════════════════════
+function setSpd(s){
+  G.speed=s;[1,2,3].forEach(n=>{const e=document.getElementById('sp'+n);if(e)e.className='hbtn'+(n===s?' sp-on':'');});
+  if(G._gi){clearInterval(G._gi);G._gi=setInterval(gameTick,1000/s);}
+}
+function togglePause(){G.paused=!G.paused;document.getElementById('pause-btn').textContent=G.paused?'▶':'⏸';}
+function toggleSet(k){SET[k]=!SET[k];document.getElementById('toggle-'+k)?.classList.toggle('on',SET[k]);}
+function exitToMenu(){if(!confirm(T('exit_c')))return;clearG();showScreen('menu');}
+function clearG(){
+  [G._gi,G._ei,G._ai,G._hdi,G._sti].forEach(i=>{if(i)clearInterval(i);});
+  document.querySelectorAll('.hotdeal,.evpop,.bigann').forEach(el=>el.remove());
+}
+
+// ═══════════════════════════════════════════
+//   WIN
+// ═══════════════════════════════════════════
+function winGame(){
+  clearG();document.getElementById('win-overlay').classList.add('show');
+  document.getElementById('w-money').textContent='$'+G.money.toLocaleString();
+  document.getElementById('w-sub').textContent=lang==='de'?`Magnat in ${G.day} Tagen!`:lang==='en'?`Magnate in ${G.day} days!`:`Магнат за ${G.day} дней!`;
+  const myB=G.cells.filter(c=>c.owner==='player').length;
+  document.getElementById('w-stats').innerHTML=`<div class="wst"><div class="wstv">${G.day}</div><div class="wstl">${T('day')}</div></div><div class="wst"><div class="wstv">${myB}</div><div class="wstl">${lang==='de'?'Gebäude':lang==='en'?'Buildings':'Зданий'}</div></div><div class="wst"><div class="wstv">${G.totalUpgrades}</div><div class="wstl">Upgrades</div></div><div class="wst"><div class="wstv">${G.totalExpansions}</div><div class="wstl">Exp.</div></div><div class="wst"><div class="wstv">${G.rep}</div><div class="wstl">${lang==='de'?'Ruf':lang==='en'?'Rep':'Реп'}</div></div><div class="wst"><div class="wstv">${G.diff}</div><div class="wstl">Diff.</div></div>`;
+  checkAch('tycoon');if(G.day<=200)checkAch('speedrun');
+  updateProfile({wins:(userData.wins||0)+1});
+  if(musicOn)stopMusic();sfx('win');
+}
+function closeWin(){document.getElementById('win-overlay').classList.remove('show');clearG();showScreen('menu');}
+async function saveToLB(){
+  const name=document.getElementById('win-name').value.trim()||currentUser||'Player';
+  const r=await apiCall('POST','/leaderboard',{name,money:G.money,day:G.day,map:G.mapType,diff:G.diff});
+  if(!r.error)closeWin();openModal('modal-lb');
+}
+
+// ═══════════════════════════════════════════
+//   LEADERBOARD (from server)
+// ═══════════════════════════════════════════
+async function renderLB(){
+  const c=document.getElementById('lb-content');
+  c.innerHTML=`<div style="text-align:center;color:var(--muted);padding:16px">${lang==='de'?'Wird geladen...':lang==='en'?'Loading...':'Загрузка...'}</div>`;
+  const r=await apiCall('GET','/leaderboard');
+  const lb=r.leaderboard||[];
+  if(!lb.length){c.innerHTML=`<div style="text-align:center;color:var(--muted);padding:20px;font-size:12px">${T('lb-empty')}</div>`;return;}
+  const medals=['👑','🥈','🥉'],mc=['var(--gold)','#9ab','#cd7f32'];
+  c.innerHTML='';
+  lb.slice(0,20).forEach((e,i)=>{
+    const d=new Date(e.ts);const row=document.createElement('div');row.className='lb-item';
+    if(i===0)row.style.cssText='background:rgba(240,165,0,.06);border:1px solid rgba(240,165,0,.22);border-radius:9px';
+    if(e.name===currentUser)row.style.cssText+='border-color:rgba(0,230,118,.3);background:rgba(0,230,118,.04)';
+    row.innerHTML=`<div class="lb-rank" style="color:${mc[i]||'var(--muted)'}">${medals[i]||i+1}</div><div class="lb-info"><div class="lb-name2">${i<3?medals[i]+' ':' '}${e.name}</div><div class="lb-data2">${T('day')} ${e.day} · ${e.map||'?'} · ${e.diff||'?'} · ${d.toLocaleDateString()}</div></div><div class="lb-m">$${fmt(e.money)}</div>`;
+    c.appendChild(row);
+  });
+  const cb=document.createElement('button');cb.className='ibtn';cb.style.cssText='margin-top:10px;background:rgba(255,75,75,.08);border-color:rgba(255,75,75,.3);color:var(--red)';
+  cb.textContent=lang==='de'?'Löschen':lang==='en'?'Clear':'Очистить';
+  cb.onclick=async()=>{if(confirm('Clear?')){await apiCall('DELETE','/leaderboard');renderLB();}};
+  c.appendChild(cb);
+}
+
+// ═══════════════════════════════════════════
+//   PROFILE (from server)
+// ═══════════════════════════════════════════
+async function renderProfile(){
+  const r=await apiCall('GET','/profile');if(r.error)return;
+  userData=Object.assign(userData,r);
+  const ach=(userData.achDone||[]).length;
+  const c=document.getElementById('profile-content');
+  c.innerHTML=`<div style="text-align:center;margin-bottom:14px"><div style="font-size:52px">${userData.avatar||'🏢'}</div><div style="font-size:18px;font-weight:800;margin-top:5px">${currentUser}</div><div style="font-size:10px;color:var(--muted)">Level ${Math.floor((userData.wins||0)/3)+1}</div></div>
+  <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:7px">
+    ${[{v:userData.games||0,l:'Games'},{v:'$'+fmt(userData.earned||0),l:lang==='de'?'Verdient':lang==='en'?'Earned':'Заработано'},{v:userData.buildings||0,l:lang==='de'?'Gebäude':'Buildings'},{v:userData.upgrades||0,l:'Upgrades'},{v:userData.days||0,l:lang==='de'?'Tage':lang==='en'?'Days':'Дней'},{v:userData.wins||0,l:'Wins'}].map(s=>`<div style="background:rgba(255,255,255,.04);border-radius:9px;padding:9px;text-align:center"><div style="font-family:'Orbitron',sans-serif;font-size:12px;font-weight:700;color:var(--gold)">${s.v}</div><div style="font-size:8px;color:var(--muted);margin-top:2px">${s.l}</div></div>`).join('')}
+  </div>
+  <div style="margin-top:12px;background:rgba(240,165,0,.06);border:1px solid rgba(240,165,0,.18);border-radius:9px;padding:11px;text-align:center"><div style="font-size:16px;font-weight:800;color:var(--gold)">${ach} / ${ACHIEVEMENTS.length} 🏅</div><div style="font-size:9px;color:var(--muted);margin-top:2px">${lang==='de'?'Achievements':lang==='en'?'Achievements':'Достижений'}</div></div>
+  <button class="ibtn" style="margin-top:12px;background:rgba(255,75,75,.08);border-color:rgba(255,75,75,.3);color:var(--red)" onclick="deleteAccount()">🗑 ${lang==='de'?'Account löschen':lang==='en'?'Delete Account':'Удалить аккаунт'}</button>`;
+}
+async function deleteAccount(){
+  if(!confirm(lang==='de'?'Account wirklich löschen?':lang==='en'?'Really delete account?':'Удалить аккаунт?'))return;
+  await apiCall('DELETE','/account');
+  authToken=null;currentUser=null;userData={};
+  try{localStorage.removeItem('be6_token');localStorage.removeItem('be6_user');}catch(e){}
+  closeModal('modal-profile');showScreen('auth');
+}
+
+// ═══════════════════════════════════════════
+//   SAVES (server)
+// ═══════════════════════════════════════════
+async function gameSave(slot){
+  const saveData={day:G.day,money:G.money,income:G.income,level:G.level,rep:G.rep,
+    map:G.map,diff:G.diff,bots:G.bots,cells:G.cells,bots_state:G.bots_state,
+    currentSize:G.currentSize,maxSize:G.maxSize,mapType:G.mapType,
+    incomeMult:G.incomeMult,incomeEnd:G.incomeEnd,priceDisc:G.priceDisc,discEnd:G.discEnd,
+    taxRate:G.taxRate,totalEarned:G.totalEarned,totalBuildings:G.totalBuildings,
+    totalUpgrades:G.totalUpgrades,totalExpansions:G.totalExpansions,
+    loans:G.loans,insurance:G.insurance,stocks:G.stocks,mapFull:G.mapFull,rentalIncome:G.rentalIncome};
+  const r=await apiCall('POST','/save/'+(slot===0?'0':slot===1?'1':slot===2?'2':'auto'),saveData);
+  if(r.success&&slot!==99){
+    const ind=document.getElementById('save-ind');
+    ind.textContent=T('saved-server');ind.style.display='block';
+    setTimeout(()=>{ind.style.display='none';},2000);
+    addAgent(T('saved-server'));
+  }
+}
+async function renderSaves(){
+  const c=document.getElementById('saves-content');
+  c.innerHTML=`<div style="text-align:center;color:var(--muted);padding:14px">${lang==='de'?'Wird geladen...':lang==='en'?'Loading...':'Загрузка...'}</div>`;
+  const r=await apiCall('GET','/saves');
+  const saves=r.saves||{};c.innerHTML='';
+  [['0',lang==='de'?'Slot 1':lang==='en'?'Slot 1':'Слот 1'],
+   ['1',lang==='de'?'Slot 2':lang==='en'?'Slot 2':'Слот 2'],
+   ['2',lang==='de'?'Slot 3':lang==='en'?'Slot 3':'Слот 3'],
+   ['auto','Auto']].forEach(([slot,label])=>{
+    const sv=saves[slot];const el=document.createElement('div');
+    el.style.cssText='display:flex;align-items:center;gap:10px;padding:11px;background:rgba(255,255,255,.04);border:1px solid var(--border);border-radius:9px;margin-bottom:7px';
+    if(sv){
+      const d=new Date(sv.savedAt||0);
+      el.innerHTML=`<div style="font-size:20px">💾</div><div style="flex:1"><div style="font-weight:700;font-size:11px">${label} · ${T('day')} ${sv.day}</div><div style="font-size:9px;color:var(--muted)">$${(sv.money||0).toLocaleString()} · Lv${sv.level||1} · ${sv.currentSize||8}×${sv.currentSize||8} · ${d.toLocaleDateString()}</div></div>
+      <div style="display:flex;gap:5px">
+        <button class="sbtn2" onclick="loadSave('${slot}')">Load</button>
+        <button class="sbtn2" onclick="deleteSave('${slot}')">✕</button>
+      </div>`;
+    }else{
+      el.innerHTML=`<div style="font-size:20px;opacity:.3">📂</div><div style="flex:1;font-size:11px;color:var(--muted)">${label} · ${lang==='de'?'Leer':lang==='en'?'Empty':'Пусто'}</div>${G.day>1?`<button class="sbtn2" onclick="gameSave(${slot==='auto'?99:parseInt(slot)});setTimeout(renderSaves,500)">Save</button>`:''}`;
+    }
+    c.appendChild(el);
+  });
+}
+async function loadSave(slot){
+  const r=await apiCall('GET','/save/'+slot);
+  const sv=r.save;if(!sv){return;}
+  clearG();Object.assign(G,sv);G.paused=false;G.speed=1;G.selId=null;
+  closeModal('modal-saves');showScreen('game');
+  renderMap();renderComps();updateHUD();buildLeg();updateProg();
+  G._gi=setInterval(gameTick,1000);G._ei=setInterval(trigEvent,32000);
+  G._ai=setInterval(agentTip,28000);G._hdi=setInterval(hotDeal,55000);G._sti=setInterval(updateStocks,7000);
+  addAgent(`📂 ${lang==='de'?'Geladen':lang==='en'?'Loaded':'Загружено'} · ${T('day')} ${G.day}`);
+}
+async function deleteSave(slot){
+  if(!confirm('Delete?'))return;
+  await apiCall('DELETE','/save/'+slot);renderSaves();
+}
+
+// ═══════════════════════════════════════════
+//   FINANCE
+// ═══════════════════════════════════════════
+function renderFinance(){
+  const c=document.getElementById('fin-content');c.innerHTML='';
+  const ml=Math.max(5000,G.income*20);
+  let h=`<div class="fsec"><div class="fsect">💳 ${T('loans')}</div>`;
+  if(G.loans.length)G.loans.forEach((l,i)=>{h+=`<div class="loan-box"><div style="font-size:11px;font-weight:700">$${l.amount.toLocaleString()} · ${l.dl}d</div><button class="ibtn" style="margin-top:5px;font-size:10px" onclick="payLoan(${i})">${T('payoff')} $${l.amount.toLocaleString()}</button></div>`;});
+  else h+=`<div style="font-size:10px;color:var(--muted);margin-bottom:8px">${lang==='de'?'Keine Kredite aktiv':lang==='en'?'No active loans':'Нет кредитов'}</div>`;
+  [5000,10000,25000,50000].filter(a=>a<=ml).forEach(a=>{h+=`<button class="ibtn" onclick="takeLoan(${a})">${T('take-loan')} $${a.toLocaleString()}</button>`;});
+  h+='</div>';
+  const insBtn=G.insurance?'':('<button class="ibtn" onclick="buyIns()">🛡 '+T('buy-ins')+'</button>');
+  h+=`<div class="fsec"><div class="fsect">🛡 ${T('insurance')}</div><div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px"><div><div style="font-size:12px;font-weight:700">${T('insurance')}</div></div><div style="font-size:11px;font-weight:700;color:${G.insurance?'var(--green)':'var(--muted)'}">${G.insurance?T('active'):T('inactive')}</div></div>${insBtn}</div>`;
+  const sn={tech:lang==='de'?'TechAG':lang==='en'?'TechCorp':'ТехКорп',re:lang==='de'?'Immobilien':lang==='en'?'Real Estate':'Недвижимость',en:lang==='de'?'Energie':lang==='en'?'Energy':'Энергия'};
+  const sb={tech:100,re:80,en:60};
+  h+=`<div class="fsec"><div class="fsect">📈 ${T('stocks')}</div>`;
+  Object.keys(G.stocks).forEach(k=>{
+    const st=G.stocks[k];const up=st.price>sb[k];
+    h+=`<div class="stock-row"><div style="flex:1"><div style="font-size:11px;font-weight:700">${sn[k]}</div><div style="font-size:9px;color:var(--muted)">${st.shares} × $${(st.shares*st.price).toLocaleString()}</div></div><div style="font-family:'Orbitron',sans-serif;font-size:12px;font-weight:700;color:${up?'var(--green)':'var(--red)'}">${up?'↑':'↓'} $${st.price}</div><div style="display:flex;gap:4px;margin-left:8px"><button class="sbtn2" onclick="buySt('${k}',5)">+5</button><button class="sbtn2" onclick="sellSt('${k}',5)">-5</button></div></div>`;
+  });
+  h+='</div>';c.innerHTML=h;
+}
+function takeLoan(a){G.money+=a;G.loans.push({amount:a,dl:90});addAgent(T('loan-taken')+' $'+a.toLocaleString());updateHUD();renderFinance();}
+function payLoan(i){const l=G.loans[i];if(!l)return;if(G.money<l.amount){addAgent(T('no-funds'));return;}G.money-=l.amount;G.loans.splice(i,1);addAgent(T('loan-paid'));updateHUD();renderFinance();}
+function buyIns(){if(G.money<2000){addAgent(T('no-funds-ins'));return;}G.money-=2000;G.insurance=true;addAgent(T('insured'));updateHUD();renderFinance();}
+function buySt(k,q){const s=G.stocks[k];if(!s)return;const cost=s.price*q;if(G.money<cost){addAgent(T('no-funds'));return;}G.money-=cost;s.shares=(s.shares||0)+q;updateHUD();renderFinance();}
+function sellSt(k,q){const s=G.stocks[k];if(!s||s.shares<q)return;G.money+=s.price*q;s.shares-=q;updateHUD();renderFinance();}
+
+// ═══════════════════════════════════════════
+//   LUCKY WHEEL
+// ═══════════════════════════════════════════
+const WP=[{l:'$1000',v:1000,c:'#f0a500'},{l:'$500',v:500,c:'#ff9800'},{l:'$5000',v:5000,c:'#00e676'},{l:'$200',v:200,c:'#7a9cc0'},{l:'$10000',v:10000,c:'#b44fff'},{l:'$300',v:300,c:'#ff9800'},{l:'$2000',v:2000,c:'#00c8ff'},{l:'$100',v:100,c:'#7a9cc0'}];
+function checkDailyReward(){
+  const last=userData.lastDaily||0;
+  const canSpin=Date.now()-last>=24*60*60*1000;
+  document.getElementById('daily-btn').style.opacity=canSpin?'1':'.4';
+}
+function openWheel(){
+  drawWheel();document.getElementById('wheel-overlay').classList.add('show');
+  const last=userData.lastDaily||0;const canSpin=Date.now()-last>=24*60*60*1000;
+  const btn=document.getElementById('spin-btn');const res=document.getElementById('wh-result');
+  if(btn){btn.disabled=!canSpin;btn.textContent=canSpin?'🎲 '+T('wh-spin'):(lang==='ru'?'Завтра!':lang==='en'?'Tomorrow!':'Morgen!');}
+  if(res)res.textContent='';
+}
+function drawWheel(){
+  const c=document.getElementById('wheel-canvas');if(!c)return;
+  const ctx=c.getContext('2d');const n=WP.length,arc=Math.PI*2/n,r=120;
+  ctx.clearRect(0,0,260,260);ctx.save();ctx.translate(130,130);ctx.rotate(wheelAngle*Math.PI/180);
+  WP.forEach((p,i)=>{
+    ctx.beginPath();ctx.moveTo(0,0);ctx.arc(0,0,r,i*arc,(i+1)*arc);
+    ctx.fillStyle=p.c;ctx.fill();ctx.strokeStyle='rgba(0,0,0,.3)';ctx.lineWidth=2;ctx.stroke();
+    ctx.save();ctx.rotate((i+.5)*arc);ctx.fillStyle='#fff';ctx.font='bold 12px Exo 2';ctx.textAlign='right';
+    ctx.fillText(p.l,r-6,4);ctx.restore();
+  });
+  ctx.restore();ctx.beginPath();ctx.moveTo(120,8);ctx.lineTo(140,8);ctx.lineTo(130,28);ctx.closePath();
+  ctx.fillStyle='var(--gold)';ctx.fill();
+}
+function spinWheel(){
+  const last=userData.lastDaily||0;
+  if(Date.now()-last<24*60*60*1000)return;
+  if(spinning)return;spinning=true;
+  document.getElementById('spin-btn').disabled=true;
+  const target=5*360+Math.random()*360;let cur=0,dur=3500,start=null;
+  function anim(ts){
+    if(!start)start=ts;const p=Math.min((ts-start)/dur,1);
+    const ease=1-Math.pow(1-p,3);cur=target*ease;wheelAngle=cur%360;drawWheel();
+    if(p<1){requestAnimationFrame(anim);}
+    else{
+      spinning=false;
+      const idx=Math.floor(((360-wheelAngle%360)%360)/(360/WP.length))%WP.length;
+      const prize=WP[idx];
+      if(G.day>0)G.money+=prize.v;
+      document.getElementById('wh-result').textContent=`🎉 ${prize.l}!`;
+      updateProfile({lastDaily:Date.now()});userData.lastDaily=Date.now();
+      spinCount++;if(spinCount>=5)checkAch('daily5');
+      checkDailyReward();updateHUD();
+    }
+  }
+  requestAnimationFrame(anim);
+}
+
+// ═══════════════════════════════════════════
+//   SFX
+// ═══════════════════════════════════════════
+function sfx(type){
+  if(!SET.sfx)return;
+  try{
+    const ctx=new(window.AudioContext||window.webkitAudioContext)();
+    if(type==='win'){[[523,.0],[659,.12],[784,.26],[1047,.44],[784,.62],[1047,.8],[1319,1.0]].forEach(([f,t])=>{const o=ctx.createOscillator(),g=ctx.createGain();o.type='sine';o.frequency.value=f;g.gain.setValueAtTime(.12,ctx.currentTime+t);g.gain.exponentialRampToValueAtTime(.001,ctx.currentTime+t+.32);o.connect(g);g.connect(ctx.destination);o.start(ctx.currentTime+t);o.stop(ctx.currentTime+t+.4);});return;}
+    const o=ctx.createOscillator(),g=ctx.createGain();o.connect(g);g.connect(ctx.destination);
+    const m={buy:[660,'sine',.08,.22],upgrade:[880,'sine',.07,.3],expand:[440,'triangle',.09,.7],fail:[180,'square',.05,.15]};
+    const[f,t,gv,d]=m[type]||[440,'sine',.07,.3];
+    o.type=t;o.frequency.value=f;g.gain.setValueAtTime(gv,ctx.currentTime);g.gain.exponentialRampToValueAtTime(.001,ctx.currentTime+d);
+    o.start(ctx.currentTime);o.stop(ctx.currentTime+d+.1);
+  }catch(e){}
+}
+
+// ═══════════════════════════════════════════
+//   INIT
+// ═══════════════════════════════════════════
+document.addEventListener('DOMContentLoaded',async()=>{
+  try{const l=localStorage.getItem('be6_lang');if(l&&L[l])lang=l;}catch(e){}
+  setLang(lang);
+  initMenuAnim();
+  initAvatarRow();
+  checkServer();
+  setInterval(checkServer,30000);
+  // Close modals on bg click
+  document.querySelectorAll('.modal,.wheel-overlay').forEach(m=>{
+    m.addEventListener('click',e=>{if(e.target===m)m.classList.remove('open','show');});
+  });
+  // Enter key for login
+  ['in-user','in-pass'].forEach(id=>{document.getElementById(id)?.addEventListener('keydown',e=>{if(e.key==='Enter')doLogin();});});
+  ['reg-user','reg-pass','reg-pass2'].forEach(id=>{document.getElementById(id)?.addEventListener('keydown',e=>{if(e.key==='Enter')doRegister();});});
+  // Auto-login if token saved
+  try{
+    const token=localStorage.getItem('be6_token');
+    const user=localStorage.getItem('be6_user');
+    if(token&&user){
+      authToken=token;currentUser=user;
+      const r=await apiCall('GET','/profile');
+      if(r.error){authToken=null;currentUser=null;localStorage.removeItem('be6_token');localStorage.removeItem('be6_user');}
+      else{userData=r;afterLogin();}
+    }
+  }catch(e){}
+});
+</script>
+</body>
+</html>
