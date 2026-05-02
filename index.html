@@ -658,7 +658,7 @@ function setLang(l){
 // ═══════════════════════════════════════════
 //   AUTH
 // ═══════════════════════════════════════════
-const AVATARS=['🏢','👑','💼','🦁','🐉','💎','🔥','⚡','🎯','🌟','🦅','🏆'];
+const AVATARS=['🏢','👑','💼','🦁','🐉','💎','🔥','⚡','🎯','🌟','🦅','🏆','🚀','💰','🌍','🏙','⚔','🎪','🌊','🏔','🤝','💡','🎭','🦊','🐺','🐯','🦋','🌈','🏴‍☠️','🎸'];
 let currentUser=null, selAvatar=AVATARS[0], userData={};
 
 function initAvatarRow(){
@@ -708,10 +708,41 @@ function afterLogin(){
   document.getElementById('menu-uname').textContent=currentUser;
   document.getElementById('menu-ulvl').textContent=`Level ${Math.floor((userData.wins||0)/3)+1} · ${userData.wins||0} Wins`;
   document.getElementById('win-name').value=currentUser;
-  // Save token to localStorage for auto-login
   try{localStorage.setItem('be6_token',authToken);localStorage.setItem('be6_user',currentUser);}catch(e){}
   checkDailyReward();
+  // OFFLINE INCOME: calculate income earned while away
+  calcOfflineIncome();
   showScreen('menu');
+}
+function calcOfflineIncome(){
+  try{
+    const lastOnline=parseInt(localStorage.getItem('be6_last_online')||'0');
+    const lastIncome=parseInt(localStorage.getItem('be6_last_income')||'0');
+    if(lastOnline&&lastIncome){
+      const awayMs=Date.now()-lastOnline;
+      const awayDays=Math.floor(awayMs/1000); // 1 game-tick = 1 sec irl
+      if(awayDays>0&&awayDays<86400*3){// max 3 real days
+        const earned=Math.floor(lastIncome*awayDays*.3);// 30% efficiency offline
+        if(earned>0){
+          // Show offline reward popup
+          setTimeout(()=>{
+            const el=document.createElement('div');
+            el.style.cssText='position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);background:var(--panel);border:2px solid var(--gold);border-radius:18px;padding:28px 36px;z-index:9999;text-align:center;box-shadow:0 0 60px rgba(240,165,0,.4);animation:annPop .5s ease';
+            el.innerHTML=`<div style="font-size:48px;margin-bottom:10px">💰</div>
+              <div style="font-family:'Orbitron',sans-serif;font-size:16px;font-weight:700;color:var(--gold);margin-bottom:6px">${lang==='de'?'Offline Einnahmen!':lang==='en'?'Offline Income!':'Офлайн Доход!'}</div>
+              <div style="font-size:12px;color:var(--muted);margin-bottom:12px">${lang==='de'?`${awayDays} Ticks während du weg warst`:lang==='en'?`${awayDays} ticks while you were away`:`${awayDays} тиков пока тебя не было`}</div>
+              <div style="font-family:'Orbitron',sans-serif;font-size:28px;font-weight:900;color:var(--green)">+$${earned.toLocaleString()}</div>
+              <div style="font-size:10px;color:var(--muted);margin-top:6px">${lang==='de'?'(30% Effizienz offline)':lang==='en'?'(30% offline efficiency)':'(30% эффективность офлайн)'}</div>
+              <button onclick="this.parentNode.remove()" style="margin-top:16px;padding:9px 28px;border-radius:9px;border:none;background:linear-gradient(135deg,var(--gold),var(--orange));color:#080c1a;font-family:'Exo 2',sans-serif;font-weight:800;cursor:pointer;font-size:13px">✅ OK</button>`;
+            document.body.appendChild(el);
+            // Store offline earnings to add when next game starts
+            localStorage.setItem('be6_offline_bonus',String(earned));
+          },1000);
+        }
+      }
+    }
+    localStorage.setItem('be6_last_online',String(Date.now()));
+  }catch(e){}
 }
 async function doLogout(){
   if(!confirm(T('logout_c')))return;
@@ -789,6 +820,11 @@ const BLD={
   port:       {e:'⚓',n:{de:'Hafen',en:'Port',ru:'Порт'},                   cost:35000,income:3500},
   tower:      {e:'🏢',n:{de:'Turm',en:'Tower',ru:'Башня'},                  cost:50000,income:5000},
   airport:    {e:'✈',n:{de:'Flughafen',en:'Airport',ru:'Аэропорт'},         cost:100000,income:10000},
+  // 4 NEW BUILDINGS
+  stadium:    {e:'🏟',n:{de:'Stadion',en:'Stadium',ru:'Стадион'},             cost:75000, income:7500},
+  hospital:   {e:'🏥',n:{de:'Krankenhaus',en:'Hospital',ru:'Больница'},       cost:45000, income:4500},
+  university: {e:'🎓',n:{de:'Universität',en:'University',ru:'Университет'},  cost:60000, income:6000},
+  skyscraper: {e:'🌆',n:{de:'Wolkenkratzer',en:'Skyscraper',ru:'Небоскрёб'}, cost:200000,income:20000},
 };
 function bName(k){return (BLD[k]?.n||{})[lang]||BLD[k]?.n?.de||k;}
 const UPGS=[
@@ -948,22 +984,27 @@ function startGame(){
   const BA={easy:.2,normal:.42,hard:.62,extreme:.82};
   const TR={easy:.03,normal:.05,hard:.08,extreme:.12};
   let mk=G.map;
-  if(mk==='random'){const a=['small','medium','metropolis','island','industrial'];mk=a[Math.floor(Math.random()*a.length)];}
+  if(mk==='random'){const a=['small','medium','metropolis','island','industrial','map2'];mk=a[Math.floor(Math.random()*a.length)];}
   G.mapType=mk;G.currentSize=MAP_INIT[mk]||8;G.maxSize=MAP_MAX[mk]||12;
   G.money=SM[G.diff];G.income=0;G.level=1;G.rep=0;G.day=1;
   G.incomeMult=1;G.incomeEnd=0;G.priceDisc=1;G.discEnd=0;G.taxRate=TR[G.diff];
   G.totalEarned=0;G.totalBuildings=0;G.totalUpgrades=0;G.totalExpansions=0;
-  G.loans=[];G.insurance=false;G.mapFull=false;G.rentalIncome=0;
+  G.loans=[];G.insurance=false;G.mapFull=false;G.rentalIncome=0;G._mafiaChallenge=false;
   G.stocks={tech:{price:100,shares:0},re:{price:80,shares:0},en:{price:60,shares:0}};
   G.selId=null;G.paused=false;G.speed=1;
   WIN_GOAL=WIN_GOALS[G.diff]||10000000;
-  // Update goal display in footer
   const gd=document.getElementById('t-goal');
   if(gd)gd.textContent=`${lang==='de'?'Ziel':lang==='en'?'Goal':'Цель'}: $${fmt(WIN_GOAL)} 🏆`;
   G.cells=genMap(G.currentSize,mk);
   G.bots_state=[];
   const nb=Math.min(G.bots,BOT_NAMES.length);
   for(let i=0;i<nb;i++)G.bots_state.push({id:i,name:BOT_NAMES[i],money:BM[G.diff],income:0,color:BOT_COLORS[i],cls:BOT_CLS[i],agg:BA[G.diff],buildings:0,bankrupt:false});
+  // Apply offline bonus money if any
+  try{
+    const bonus=parseInt(localStorage.getItem('be6_offline_bonus')||'0');
+    if(bonus>0){G.money+=bonus;localStorage.removeItem('be6_offline_bonus');addAgent(`💰 ${lang==='de'?'Offline Bonus':lang==='en'?'Offline Bonus':'Офлайн бонус'}: +$${bonus.toLocaleString()}`);}
+  }catch(e){}
+  if(mk==='map2')setTimeout(()=>checkAch('map2_explorer'),100);
   showScreen('game');
   renderMap();renderComps();updateHUD();buildLeg();updateProg();
   G._gi=setInterval(gameTick,1000/G.speed);
