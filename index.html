@@ -304,12 +304,13 @@ body{font-family:'Exo 2',sans-serif;background:var(--bg);color:var(--text);overf
   <div id="bg4" style="position:absolute;inset:0;z-index:0"></div>
   <div class="flow-wrap" style="z-index:1"><div class="flow-box">
     <div class="ftitle" id="t-map_t">KARTE WÄHLEN</div><div class="fsub" id="t-map_s">Karte expandiert bei 80% automatisch!</div>
-    <div class="fgrid g3">
+    <div class="fgrid" style="grid-template-columns:1fr 1fr 1fr;gap:10px">
       <div class="fcard fc-cyan" id="map-small" onclick="selMap('small')"><div class="ci">🏙</div><div class="cn" id="t-sm">Klein</div><div class="cd">6×6 → 10×10</div></div>
       <div class="fcard fc-gold sel" id="map-medium" onclick="selMap('medium')"><div class="ci">🌆</div><div class="cn" id="t-med">Mittel</div><div class="cd">8×8 → 12×12<br><span id="t-rec">Empfohlen</span></div></div>
       <div class="fcard fc-red" id="map-metropolis" onclick="selMap('metropolis')"><div class="ci">🌃</div><div class="cn" id="t-met">Metropole</div><div class="cd">10×10 → 16×16</div></div>
       <div class="fcard fc-cyan" id="map-island" onclick="selMap('island')"><div class="ci">🏝</div><div class="cn" id="t-isl">Insel</div><div class="cd" id="t-isl_d">Wasser · Teuer</div></div>
       <div class="fcard fc-gold" id="map-industrial" onclick="selMap('industrial')"><div class="ci">🏭</div><div class="cn" id="t-ind">Industrie</div><div class="cd" id="t-ind_d">Fabriken</div></div>
+      <div class="fcard fc-purple" id="map-map2" onclick="selMap('map2')"><div class="ci">🗾</div><div class="cn">MAP 2</div><div class="cd">9×9 → 14×14<br>🏙+🏝+🏭 Hybrid<br><span style="color:var(--purple);font-size:8px">✨ NEU</span></div></div>
       <div class="fcard fc-green" id="map-random" onclick="selMap('random')"><div class="ci">🎲</div><div class="cn" id="t-ran">Zufall</div><div class="cd" id="t-ran_d">Jedes Mal neu!</div></div>
     </div>
     <div class="faction"><button class="fbtn fbtn-back" onclick="showScreen('mode')">← <span id="t-back2">Zurück</span></button><button class="fbtn fbtn-next" onclick="showScreen('botcnt')" id="t-next2">Weiter →</button></div>
@@ -800,9 +801,10 @@ function uName(u){return u.n[lang]||u.n.de;}
 const BOT_NAMES=['Viktor Corp','NexGen LLC','AlphaTrade','BauerGroup','MoneyMaker','CityKing'];
 const BOT_COLORS=['#cc1010','#cc5500','#8800cc','#0055cc','#00aa70','#cc0055'];
 const BOT_CLS=['c-bot0','c-bot1','c-bot2','c-bot3','c-bot4','c-bot5'];
-const MAP_INIT={small:6,medium:8,metropolis:10,island:7,industrial:8,random:0};
-const MAP_MAX={small:10,medium:12,metropolis:16,island:10,industrial:12,random:14};
-const WIN_GOAL=10000000;
+const MAP_INIT={small:6,medium:8,metropolis:10,island:7,industrial:8,map2:9,random:0};
+const MAP_MAX={small:10,medium:12,metropolis:16,island:10,industrial:12,map2:14,random:14};
+const WIN_GOALS={easy:1000000,normal:10000000,hard:100000000,extreme:1000000000};
+let WIN_GOAL=10000000;
 const EVENTS=[
   {e:'📈',t:{de:'Immobilienboom!',en:'Real Estate Boom!',ru:'Бум!'},d:{de:'+60% 8 Tage',en:'+60% 8 days',ru:'+60% 8 дней'},incomeBonus:1.6,dur:8},
   {e:'📉',t:{de:'Wirtschaftskrise',en:'Economic Crisis',ru:'Кризис'},d:{de:'-40% 10 Tage',en:'-40% 10 days',ru:'-40% 10 дней'},incomeBonus:.6,dur:10},
@@ -815,6 +817,9 @@ const EVENTS=[
   {e:'💥',t:{de:'Konkurrent pleite!',en:'Competitor Bankrupt!',ru:'Банкрот!'},d:{de:'Bot bankrott!',en:'Bot bankrupt!',ru:'Бот разорился!'},botBankrupt:true},
   {e:'🎲',t:{de:'Lotto!',en:'Lottery!',ru:'Лотерея!'},d:{de:'$10000!',en:'$10000!',ru:'$10000!'},moneyBonus:10000},
   {e:'⭐',t:{de:'VIP Kunden!',en:'VIP Clients!',ru:'VIP!'},d:{de:'+30% 5T',en:'+30% 5d',ru:'+30% 5д'},incomeBonus:1.3,dur:5,repBonus:20},
+  {e:'🎭',t:{de:'MAFIA BOSS erscheint!',en:'MAFIA BOSS appears!',ru:'Появился МАФИЯ БОСС!'},d:{de:'Besiege ihn und erhalte das exklusive Icon 🎭👑!',en:'Beat him and get the exclusive icon 🎭👑!',ru:'Победи его и получи эксклюзивную иконку 🎭👑!'},mafiaEvent:true},
+  {e:'🕶',t:{de:'Schwarzmarkt!',en:'Black Market!',ru:'Чёрный рынок!'},d:{de:'Alle Gebäude -60% für 2 Tage!',en:'All buildings -60% for 2 days!',ru:'Все здания -60% на 2 дня!'},discount:.4,dur:2},
+  {e:'🚔',t:{de:'Polizeirazzio!',en:'Police Raid!',ru:'Рейд!'},d:{de:'-$5000 Strafe!',en:'-$5000 fine!',ru:'Штраф -$5000!'},moneyPenalty:0,moneyBonus:-5000},
 ];
 function eT(ev){return ev.e+' '+(ev.t[lang]||ev.t.de);}
 function eD(ev){return ev.d[lang]||ev.d.de;}
@@ -827,6 +832,8 @@ const ACHIEVEMENTS=[
   {id:'speedrun',e:'⚡',n:{de:'Speedrunner',en:'Speedrunner',ru:'Спидраннер'},d:{de:'In 200 Tagen gewinnen',en:'Win in 200 days',ru:'Победить за 200 дней'}},
   {id:'expansion',e:'🗺',n:{de:'Stadtplaner',en:'City Planner',ru:'Планировщик'},d:{de:'Karte 3x expandieren',en:'Expand map 3x',ru:'Расширить 3 раза'}},
   {id:'daily5',e:'🎰',n:{de:'Glücksspieler',en:'Lucky Spinner',ru:'Везунчик'},d:{de:'5x Wheel',en:'Spin wheel 5 times',ru:'5 прокруток'}},
+  {id:'mafia_boss',e:'🎭👑',n:{de:'MAFIA BOSS',en:'MAFIA BOSS',ru:'МАФИЯ БОСС'},d:{de:'Den Mafia-Boss besiegen!',en:'Defeat the Mafia Boss!',ru:'Победить Мафия Босса!'}},
+  {id:'map2_explorer',e:'🗾',n:{de:'Map 2 Explorer',en:'Map 2 Explorer',ru:'Исследователь Карты 2'},d:{de:'Auf Map 2 spielen',en:'Play on Map 2',ru:'Сыграть на Карте 2'}},
 ];
 function achN(a){return a.n[lang]||a.n.de;}
 function achD(a){return a.d[lang]||a.d.de;}
@@ -901,13 +908,29 @@ function selDiff(d){G.diff=d;['easy','normal','hard','extreme'].forEach(x=>docum
 function genMap(size,mt,existing=null){
   const cells=[],ex={};if(existing)existing.forEach(c=>{ex[c.id]=c;});
   const dts=['normal','normal','rich','tourist','poor','industrial'];
+  // MAP 2: hybrid island+industrial+rich - special layout
+  const isMap2=(mt==='map2');
   for(let y=0;y<size;y++)for(let x=0;x<size;x++){
     const id=`${x}-${y}`;if(ex[id]){cells.push(ex[id]);continue;}
     let type='empty',building=null;
     if(mt==='island'){const cx=x-size/2+.5,cy=y-size/2+.5;if(Math.sqrt(cx*cx+cy*cy)>size/2-.85||Math.random()<.04)type='water';}
+    // Map 2: water in corners, rich center, industrial edges
+    if(isMap2){
+      const cx=x-size/2+.5,cy=y-size/2+.5;
+      // Small water patches in corners
+      if(Math.abs(cx)>size/2-1.5&&Math.abs(cy)>size/2-1.5&&Math.random()<.7)type='water';
+    }
     if(type==='empty'&&Math.random()<.07){type='neutral';building='bakery';}
-    const di=Math.floor(x/(size/3))+Math.floor(y/(size/3))*3;
-    const dt=dts[di%dts.length];
+    let di=Math.floor(x/(size/3))+Math.floor(y/(size/3))*3;
+    let dt=dts[di%dts.length];
+    // Map 2 override: center=rich, outer=industrial
+    if(isMap2){
+      const cx=Math.abs(x-size/2+.5),cy=Math.abs(y-size/2+.5);
+      const dist=Math.sqrt(cx*cx+cy*cy);
+      if(dist<size/4)dt='rich';
+      else if(dist<size/3)dt='tourist';
+      else dt='industrial';
+    }
     const pm={normal:1,rich:1.8,poor:.65,tourist:1.35,industrial:.95}[dt]||1;
     const im={normal:1,rich:1.5,poor:.7,tourist:1.8,industrial:1.25}[dt]||1;
     cells.push({x,y,id,type,owner:'none',building,upgrades:{},upgradeLevel:0,dt,pm,im,dist:Math.floor(x/(size/2))*2+Math.floor(y/(size/2)),isNew:!!existing,damaged:false});
@@ -933,6 +956,10 @@ function startGame(){
   G.loans=[];G.insurance=false;G.mapFull=false;G.rentalIncome=0;
   G.stocks={tech:{price:100,shares:0},re:{price:80,shares:0},en:{price:60,shares:0}};
   G.selId=null;G.paused=false;G.speed=1;
+  WIN_GOAL=WIN_GOALS[G.diff]||10000000;
+  // Update goal display in footer
+  const gd=document.getElementById('t-goal');
+  if(gd)gd.textContent=`${lang==='de'?'Ziel':lang==='en'?'Goal':'Цель'}: $${fmt(WIN_GOAL)} 🏆`;
   G.cells=genMap(G.currentSize,mk);
   G.bots_state=[];
   const nb=Math.min(G.bots,BOT_NAMES.length);
@@ -1277,11 +1304,21 @@ function trigEvent(){
   if(G.paused)return;
   const ev=EVENTS[Math.floor(Math.random()*EVENTS.length)];
   showPop({t:eT(ev),d:eD(ev)});addAgent(`📡 ${eT(ev)} — ${eD(ev)}`);rotateTicker(eT(ev)+': '+eD(ev));
-  if(ev.moneyBonus)G.money+=ev.moneyBonus;
+  if(ev.moneyBonus&&ev.moneyBonus>0)G.money+=ev.moneyBonus;
+  if(ev.moneyBonus&&ev.moneyBonus<0)G.money=Math.max(0,G.money+ev.moneyBonus);
   if(ev.moneyPenalty)G.money=Math.floor(G.money*(1-ev.moneyPenalty));
   if(ev.repBonus)G.rep+=ev.repBonus;
   if(ev.incomeBonus&&ev.dur){G.incomeMult=ev.incomeBonus;G.incomeEnd=G.day+ev.dur;}
   if(ev.discount&&ev.dur){G.priceDisc=ev.discount;G.discEnd=G.day+ev.dur;}
+  // Mafia Boss event
+  if(ev.mafiaEvent){
+    G._mafiaChallenge=true;
+    showAnn(lang==='de'?'🎭 MAFIA BOSS erscheint! Baue mehr als er!':lang==='en'?'🎭 MAFIA BOSS appears! Build more than him!':'🎭 МАФИЯ БОСС! Строй быстрее!','background:rgba(80,0,0,.95);border:2px solid #cc0000');
+    // Spawn a special boss bot
+    const boss={id:'boss',name:'👹 MAFIA BOSS',money:50000,income:0,color:'#cc0000',cls:'c-bot0',agg:.95,buildings:0,bankrupt:false,isBoss:true};
+    G.bots_state.push(boss);
+    renderComps();buildLeg();
+  }
   if(ev.fire){
     const pb=G.cells.filter(c=>c.owner==='player'&&c.building&&!c.damaged);
     if(pb.length){const t=pb[Math.floor(Math.random()*pb.length)];
@@ -1363,10 +1400,32 @@ function clearG(){
 function winGame(){
   clearG();document.getElementById('win-overlay').classList.add('show');
   document.getElementById('w-money').textContent='$'+G.money.toLocaleString();
-  document.getElementById('w-sub').textContent=lang==='de'?`Magnat in ${G.day} Tagen!`:lang==='en'?`Magnate in ${G.day} days!`:`Магнат за ${G.day} дней!`;
+  // Diff label
+  const diffLabel={easy:'Easy $1M',normal:'Normal $10M',hard:'Hard $100M',extreme:'Extreme $1B'}[G.diff]||G.diff;
+  const isMafiaBossWin=G._mafiaChallenge&&G.money>=WIN_GOAL;
+  document.getElementById('w-sub').textContent=
+    isMafiaBossWin?(lang==='de'?`🎭👑 MAFIA BOSS besiegt! Exklusives Icon verdient!`:lang==='en'?`🎭👑 MAFIA BOSS defeated! Exclusive icon earned!`:`🎭👑 МАФИЯ БОСС повержен! Эксклюзивная иконка!`)
+    :(lang==='de'?`Magnat in ${G.day} Tagen! [${diffLabel}]`:lang==='en'?`Magnate in ${G.day} days! [${diffLabel}]`:`Магнат за ${G.day} дней! [${diffLabel}]`);
   const myB=G.cells.filter(c=>c.owner==='player').length;
-  document.getElementById('w-stats').innerHTML=`<div class="wst"><div class="wstv">${G.day}</div><div class="wstl">${T('day')}</div></div><div class="wst"><div class="wstv">${myB}</div><div class="wstl">${lang==='de'?'Gebäude':lang==='en'?'Buildings':'Зданий'}</div></div><div class="wst"><div class="wstv">${G.totalUpgrades}</div><div class="wstl">Upgrades</div></div><div class="wst"><div class="wstv">${G.totalExpansions}</div><div class="wstl">Exp.</div></div><div class="wst"><div class="wstv">${G.rep}</div><div class="wstl">${lang==='de'?'Ruf':lang==='en'?'Rep':'Реп'}</div></div><div class="wst"><div class="wstv">${G.diff}</div><div class="wstl">Diff.</div></div>`;
+  // Game ranking (compare to bots in this session)
+  const allPlayers=[{name:currentUser||'You',money:G.money,isMe:true},...G.bots_state.filter(b=>!b.bankrupt).map(b=>({name:b.name,money:b.money,isMe:false}))].sort((a,b)=>b.money-a.money);
+  const myRank=allPlayers.findIndex(p=>p.isMe)+1;
+  const rankEmoji=['🥇','🥈','🥉','4️⃣','5️⃣','6️⃣','7️⃣'][myRank-1]||`#${myRank}`;
+  document.getElementById('w-stats').innerHTML=`
+    <div class="wst"><div class="wstv">${G.day}</div><div class="wstl">${T('day')}</div></div>
+    <div class="wst"><div class="wstv">${myB}</div><div class="wstl">${lang==='de'?'Gebäude':lang==='en'?'Buildings':'Зданий'}</div></div>
+    <div class="wst"><div class="wstv">${G.totalUpgrades}</div><div class="wstl">Upgrades</div></div>
+    <div class="wst"><div class="wstv">${rankEmoji} ${myRank}/${allPlayers.length}</div><div class="wstl">${lang==='de'?'Rang':lang==='en'?'Rank':'Место'}</div></div>
+    <div class="wst"><div class="wstv">${G.rep}</div><div class="wstl">${lang==='de'?'Ruf':lang==='en'?'Rep':'Реп'}</div></div>
+    <div class="wst"><div class="wstv">${diffLabel.split(' ')[0]}</div><div class="wstl">Diff.</div></div>`;
+  // Game session ranking table
+  const rankTable=document.createElement('div');rankTable.style.cssText='margin:12px 0;background:rgba(255,255,255,.04);border-radius:10px;overflow:hidden';
+  rankTable.innerHTML=`<div style="font-size:9px;font-weight:700;letter-spacing:1.5px;color:var(--muted);padding:8px 12px;border-bottom:1px solid var(--border)">${lang==='de'?'SPIEL-RANGLISTE':lang==='en'?'GAME RANKING':'РЕЙТИНГ ИГРЫ'}</div>`+
+    allPlayers.map((p,i)=>`<div style="display:flex;align-items:center;gap:8px;padding:7px 12px;${p.isMe?'background:rgba(0,230,118,.06);':''}border-bottom:1px solid rgba(255,255,255,.04)"><div style="font-family:'Orbitron',sans-serif;font-size:12px;font-weight:700;width:22px;color:${['var(--gold)','#9ab','#cd7f32'][i]||'var(--muted)'}">${['👑','🥈','🥉'][i]||i+1}</div><div style="flex:1;font-size:11px;font-weight:${p.isMe?700:400}">${p.isMe?'⭐ ':' '}${p.name}</div><div style="font-family:'Orbitron',sans-serif;font-size:10px;color:var(--gold)">$${fmt(p.money)}</div></div>`).join('');
+  const wStats=document.getElementById('w-stats');
+  wStats.parentNode.insertBefore(rankTable,wStats.nextSibling);
   checkAch('tycoon');if(G.day<=200)checkAch('speedrun');
+  if(isMafiaBossWin){checkAch('mafia_boss');updateProfile({avatar:'🎭👑'});userData.avatar='🎭👑';document.getElementById('menu-ava').textContent='🎭👑';}
   updateProfile({wins:(userData.wins||0)+1});
   if(musicOn)stopMusic();sfx('win');
 }
@@ -1395,10 +1454,6 @@ async function renderLB(){
     row.innerHTML=`<div class="lb-rank" style="color:${mc[i]||'var(--muted)'}">${medals[i]||i+1}</div><div class="lb-info"><div class="lb-name2">${i<3?medals[i]+' ':' '}${e.name}</div><div class="lb-data2">${T('day')} ${e.day} · ${e.map||'?'} · ${e.diff||'?'} · ${d.toLocaleDateString()}</div></div><div class="lb-m">$${fmt(e.money)}</div>`;
     c.appendChild(row);
   });
-  const cb=document.createElement('button');cb.className='ibtn';cb.style.cssText='margin-top:10px;background:rgba(255,75,75,.08);border-color:rgba(255,75,75,.3);color:var(--red)';
-  cb.textContent=lang==='de'?'Löschen':lang==='en'?'Clear':'Очистить';
-  cb.onclick=async()=>{if(confirm('Clear?')){await apiCall('DELETE','/leaderboard');renderLB();}};
-  c.appendChild(cb);
 }
 
 // ═══════════════════════════════════════════
